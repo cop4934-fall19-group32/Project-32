@@ -1,0 +1,78 @@
+\documentclass{article}
+
+\usepackage{xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{#1}}
+
+\def\frontmatter{%
+    \pagenumbering{roman}
+    \setcounter{page}{1}
+    \renewcommand{\thesection}{\Roman{section}}
+}%
+
+\def\mainmatter{%
+    \pagenumbering{arabic}
+    \setcounter{page}{1}
+    \setcounter{section}{0}
+    \renewcommand{\thesection}{\arabic{section}}
+}%
+
+\setlength\parindent{0pt}
+
+\author{
+  Billingham, John\\
+  King, Brandy\\
+  LaCognata, Nicolas\\
+  Simonian, Sean\\\\
+  {\small Advisor: Carbone, Tom}
+}
+
+\title{Project Solenodon}
+
+\begin{document}
+
+\frontmatter
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\mainmatter
+
+\section{Executive Summary}
+\input{sections/executive_statement}
+
+\section{Project Significance}
+\input{sections/project_significance}
+
+\section{Legal, Ethical, and Privacy Issues}
+\input{sections/legal_ethical_and_privacy_issues}
+
+\section{Requirements}
+\input{sections/requirements}
+
+\section{Final Prototype}
+\newpage
+
+\section{Design Summary}
+\input{sections/design_summary}
+
+\section{Reseach and Investigations}
+\input{sections/research_and_investigations.tex}
+
+\section{Budget and Financing}
+\input{sections/budget_and_financing}
+
+\section{Milestones}
+\input{sections/milestones}
+
+\section{Project Summary and Conclusions}
+\newpage
+
+\section{References}
+\newpage
+
+\section{Appendices}
+\end{document}
