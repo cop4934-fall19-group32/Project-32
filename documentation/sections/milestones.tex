@@ -1,43 +1,364 @@
-\subsection{Big Prototype Party}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+This section of the document describes the major milestones of our project. It
+is highly susceptible to change.
 
-\subsection{Game Pitch}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsection{Big Prototype Party (Monday, Oct 14th)}
 
-\subsection{Paper Prototype 2.0}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Summary}
+Since this project does not have a sponsor, the onus is on us to determine the
+exact nature of the problem we would like to solve. To ensure that our efforts
+are directed effectively for the remainder of our project, our first month has
+been dedicated to researching and playtesting. By this date, every member of the
+team should have a solid foundation of the problem space we are working in, and
+have a prototype of a solution.
 
-\subsection{Hello Game}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Deliverables}
+Every member of the team must have a prototype of our final game. This prototype
+should fit the following criteria:
+\begin{itemize}
+  \item The prototype is interactive.
+  \item The prototype is engaging to work with.
+  \item The prototype represent a wide slice of the game’s mechanics.
+  \item The prototype makes the player think computationally.
+  \item The rules of the prototype are concise and written out.
+\end{itemize}
 
-\subsection{Waterfall Method}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsection{Game Pitch (Friday, October 18th)}
 
-\subsection{Open to Interpretation}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Summary}
+This milestone culminates one of the most critical stages of our project. Now
+that we’ve had the time to demonstrate non-abstractly what our problem space is
+and how we’d like to solve it, we can converge on a unified solution. By this
+milestone the team should be able to confidently answer the following questions,
+and develop the documentation necessary to capture our answers:
+\begin{enumerate}
+  \item What will our final product look like?
+  \item What are the learning objectives of our game?
+  \item What kind of puzzles will our game have?
+  \item How will those puzzles work?
+  \item How will those puzzles achieve our learning objectives?
+  \item How will we order these puzzles to ensure that there is an appropriate
+  learning curve?
+  \item What evidence do we have that our learning curve will be engaging and
+  effective for our target audience?
+  \item What games did we draw inspiration from?
+\end{enumerate}
 
-\subsection{Turing Complete}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Deliverables}
+This milestone’s deliverables are still non-code items. These are items that we
+will rely on for the remainder of our project, and inform all future efforts.
+Specifically, we must deliver:
+\begin{itemize}
+  \item A unified prototype of our final game
+  \item A write up of our prototype, its capabilities, and its design philosophy
+  \item Diagrams/concept drawings of game mechanics not demonstrated by the prototype
+  \item Research Papers that support our design choices
+  \item Playtesting findings that support our design choices
+  \item Any other artifacts necessary to answer the questions above
+\end{itemize}
 
-\subsection{Advanced Puzzles}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsection{Paper Prototype 2.0 (Monday, October 28th)}
 
-\subsection{Opening Sequence}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Summary}
+Rapid iteration is an important part of successfully designing a game. By this
+milestone, our original prototype should be placed in the hands of as many
+playtesters as possible. The group should use the data from this playtesting to
+inform any design changes we make to our prototype.
+
+\subsubsection*{Deliverables}
+\begin{itemize}
+  \item A new prototype of our final game, with documentation supporting our
+  changes to our original prototype.
+  \item Expanded design documentation to capture the vision of our final game
+  including:
+  \begin{itemize}
+    \item Detailed system diagrams that describe how the mechanics of our game
+    interact
+    \item An explanation of who will be the lead on certain areas of our game
+  \end{itemize}
+\end{itemize}
+
+\subsection{Hello Game (Friday, November 29th)}
+
+\subsubsection*{Summary}
+This milestone marks our first code-based deliverables. Now that all members of
+the team have a solid understanding of our final product, we can begin
+prototyping in code. In addition to continued playtesting and research, this
+month will give the team a chance to start learning the technology we will need
+to complete the project.
+
+\subsubsection*{Deliverables}
+For this milestone, we’d like to have an \textbf{extremely rudimentary} prototype
+of our core gameplay loop up and running. This will be our “Hello World”.
+
+A player should be able to:
+\begin{enumerate}
+  \item Start the game
+  \item Open a puzzle level
+  \item Be presented with a basic UI
+  \item Be able to drag the input and output commands into the instruction
+  window
+  \item See an entity grab items from the input box, and place it in the output
+  box
+\end{enumerate}
+
+To accomplish this we need:
+\begin{itemize}
+  \item A puzzle level to exist
+  \begin{itemize}
+    \item Has a randomly generated input set (X numbers)
+    \item Generates a solution to that set (The same X numbers)
+  \end{itemize}
+  \item The player’s UI to work
+  \begin{itemize}
+    \item Present player with instruction set
+    \begin{itemize}
+      \item Input
+      \item Output
+    \end{itemize}
+    \item Allow player to drag and drop instructions into their script
+    \begin{itemize}
+      \item The script generates a data structure that the interpreter can then read
+    \end{itemize}
+  \end{itemize}
+  \item A worker entity
+  \begin{itemize}
+    \item Worker entity acts out the players instructions
+    \item Accepts commands from interpreter
+  \end{itemize}
+  \item An interpreter
+  \begin{itemize}
+    \item Parses player script from UI
+    \item Interprets player instructions
+    \begin{itemize}
+      \item Simulates delay to allow instructions to complete
+      \item Handles basic instructions
+      \begin{itemize}
+        \item Input
+        \item Output
+        \item MoveTo/From Register
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\subsection{Waterfall Method (Thursday, December 5th)}
+
+\subsubsection*{Summary}
+This milestone marks the end of Senior Design 1. As such, we are required by the
+class to produce a document that outlines all of our plans for Senior Design 2.
+This document will describe all the intricacies of our project.
+
+\subsubsection*{Deliverables}
+As per the requirements of this course, our final design document will describe
+all aspects of the project including:
+\begin{itemize}
+  \item Our initial research
+  \begin{itemize}
+    \item We will satisfy this requirement through our findings in published
+    research, as well as our findings through playtests of our game and others
+  \end{itemize}
+  \item Personal Motivations
+  \item Broader Impacts
+  \item Design
+  \begin{itemize}
+    \item Our design will rely heavily on our initial research findings, and
+    include a wide range of diagrams.
+  \end{itemize}
+  \item Theory of Operation
+  \begin{itemize}
+    \item Our theory of operation will best be conveyed through the paper
+    prototypes we produced in the early stages of our project. Therefore, our
+    final design document should include extensive write ups of those prototypes.
+  \end{itemize}
+ \item Implementation methodology
+ \item Milestones
+ \item Testing
+ \begin{itemize}
+   \item The testing of our project will be difficult due to the nature of game
+   programming. In industry, many studios forgo unit testing of non-engine code.
+   We will need to come up with a rigorous set of manual tests, as well as a
+   consistent playtesting schedule to ensure our game remains in a functioning
+   state.
+ \end{itemize}
+ \item Final Performance/Results
+\end{itemize}
+
+\subsection{Open to Interpretation (Monday, January 10th)}
+
+\subsubsection*{Summary}
+This milestone marks the beginning of Senior Design 2, and as such we should
+have an expanded prototype of our game. It still may be rough around the edges,
+but it should demonstrate that we are capable of carrying this project out by
+the end of the semester.
+
+\subsubsection*{Deliverables}
+A player should be able to:
+\begin{enumerate}
+  \item Start the game
+  \item Be presented with a non-trivial puzzle
+  \item Use an expanded instruction set to solve the puzzle
+\end{enumerate}
+
+To accomplish this we need:
+\begin{itemize}
+  \item A generalized puzzle format
+  \begin{itemize}
+    \item Input, Output, success, failure
+    \item Register Memory Cards
+  \end{itemize}
+  \item An improved worker entity
+  \begin{itemize}
+    \item Follows player instructions
+  \end{itemize}
+  \item Improved UI
+  \begin{itemize}
+    \item Graphics for new instructions
+    \item Markings for active instruction
+  \end{itemize}
+  \item An expanded Interpreter
+  \begin{itemize}
+    \item Handles several instructions
+    \begin{itemize}
+      \item Input
+      \item Output
+      \item MoveTo/From Register
+      \item Jump
+      \item Conditional Jump
+    \end{itemize}
+    \item Handles logical errors
+    \begin{itemize}
+      \item Conditional Jumps with empty hand
+      \item Move/Copy from empty register
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\subsection{Turing Complete (Friday, February 7th)}
+
+\subsubsection*{Summary}
+For the previous milestone we laid the foundations for our most important
+instructions. For this milestone, we should have these fundamental instructions
+in a highly polished state. This includes all the messaging necessary to
+indicate the operations being performed, and well as robust error handling and
+reporting.
+
+\subsubsection*{Deliverables}
+A polished demo that demonstrates the most fundamental instructions of our game.
+The requirements for each instruction are listed below:
+
+\begin{itemize}
+  \item Input
+  \begin{itemize}
+    \item When the input command is executed, the Actor should travel to and
+    grab data from the input bin.
+    \item The input bin should react to having an input extracted
+    \item The Actor should display the item it picked up
+  \end{itemize}
+  \item Output
+  \begin{itemize}
+    \item When this command is executed, the Actor should travel to the output box
+    and drop the item in its hands
+    \item If the actor’s hands are empty, the program should terminate and alert
+    the player
+    \begin{itemize}
+      \item This requires the actor to emote in response to the error
+      \item The user interface should draw the player’s attention to the issue
+    \end{itemize}
+  \end{itemize}
+  \item Unconditional Jumps
+  \begin{itemize}
+    \item Unconditional Jumps should properly work properly.
+    \item The user should be able to easily create loops
+    \item The user should be able to easily skip instructions
+  \end{itemize}
+  \item Conditional Jumps
+  \begin{itemize}
+    \item Conditional jumps should have all the proper messaging to indicate
+    their function
+    \item If the actor’s hands are empty, the program should terminate and alert
+    the player
+    \begin{itemize}
+      \item This requires the actor to emote in response to the error
+      \item The user interface should draw the player’s attention to the issue
+    \end{itemize}
+  \end{itemize}
+  \item Register Manipulation
+  \begin{itemize}
+    \item Players should be able to play register memory cards before running
+    their solution, and see their instructions place and remove items from those
+    registers.
+    \item If the player performs an invalid instruction pertaining to register
+    manipulation, the program should terminate and alert the player
+    \begin{itemize}
+      \item The actor should emote to signal the error
+      \item The UI should draw attention to the error
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Advanced Puzzles (Friday, February 28th)}
+
+\subsubsection*{Summary}
+For this milestone, we would like to expand our memory card system to include
+several fundamental data structures that can allow players to solve increasingly
+complex problems. For our initial offering, we would like to support Stacks,
+Heaps, and Queues.
+
+\subsubsection*{Deliverables}
+TBD
+
+\subsection{Opening Sequence (Friday, March 20th)}
+
+\subsubsection*{Summary}
+By this milestone, we should have a complete tutorial sequence to our game. This
+will make it appropriate for intense playtesting and refactoring.
+
+\subsubsection*{Deliverables}
+We should be able to deliver an early draft of our puzzle game that includes a
+tutorial sequence, with all the appropriate messaging. A player should be able
+to sit down and complete this sequence \textbf{without any input from developers}.
+This tutorial sequence includes a series of very simple puzzles to orient
+players with the instruction set at their disposal.
+
+A Player from our target demographic should be able to:
+\begin{enumerate}
+  \item Arrive with no prior experience to the game
+  \item Complete all the puzzles in the series without getting frustrated
+  \item After completing the tutorial sequence, be able to make a confident
+  attempt at a more difficult puzzle
+\end{enumerate}
+
+To achieve this we will need:
+\begin{itemize}
+  \item A system for presenting levels in linear fashion (A world map)
+  \item A system for messaging the player in a non-obtrusive way
+  \item In-game accessible documentation for all of our basic instructions
+  \item Robust entity to act out player instructions
+  \begin{itemize}
+    \item Animated
+    \item Responsive
+    \item Emotive
+  \end{itemize}
+  \item A somewhat polished User Interface for creating and running puzzle scripts
+  \item A bug-free interpreter
+  \begin{itemize}
+    \item Good luck with that :’(
+  \end{itemize}
+\end{itemize}
 
 \subsection{Playtesting Results}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Summary}
+After we have a viable set of puzzles, it is very important to get our game in
+front of as many people as possible. This milestone marks the end of our
+playtesting sprint, after which we can plan and make changes to improve the
+player experience.
+\subsubsection*{Deliverables}
+A set of playtesting data, and a list of refactorings we’d like to make to
+improve the game.
 
 \subsection{Final Product}
-\subsubsection{Summary}
-\subsubsection{Deliverables}
+\subsubsection*{Summary}
+This is our final milestone, therefore, we should be done with the project.
+\subsubsection*{Deliverables}
+A game that doesn’t suck.
