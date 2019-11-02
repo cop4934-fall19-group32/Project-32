@@ -1,0 +1,11 @@
+# LaTex Generated Files
+design_document.pdf
+
+# LaTex intermediate files
+*.aux
+*.fdb_latexmk
+*.files
+*.log
+*.fls
+*.gz
+*.toc
