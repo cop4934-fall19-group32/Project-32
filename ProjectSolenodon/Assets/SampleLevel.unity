@@ -215,7 +215,7 @@ GameObject:
   - component: {fileID: 1027158662}
   - component: {fileID: 1027158661}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: GameState
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -233,11 +233,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6d2055a4c3ba8b489ec2bb77d686795, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelData:
-    numRegisterCards: 0
-    numStackCards: 0
-    numQueueCards: 0
-    numHeapCards: 0
+  puzzleData:
+    _numRegisterCards: 0
+    _numStackCards: 0
+    _numQueueCards: 0
+    _numHeapCards: 0
   registerCard: {fileID: 5574717134519410308, guid: 7ead3b61058bb144ca32a57d9b02dd73,
     type: 3}
   stackCard: {fileID: 5981438326611183074, guid: fe34f9b4c46fae84799aaec76e0caf25,
@@ -258,7 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36c1db3c04ab31142856e968ff7bf7b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelScript: {fileID: 0}
+  puzzleGenerator: {fileID: 0}
 --- !u!4 &1027158663
 Transform:
   m_ObjectHideFlags: 0
