@@ -41,6 +41,8 @@ public class PuzzleGenerator : MonoBehaviour
     //     - 2 stack cards
     //     - 2 queue cards
     //     - 2 heap cards
+    // 
+    // when this is updated to be dynamic, how will the number of each card be passed to the function?
     void CreateSampleLevel()
     {
         string path = "Assets/Resources/PuzzleSaves/puzzle1.json";
