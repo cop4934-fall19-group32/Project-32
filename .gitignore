@@ -10,13 +10,13 @@ design_document.pdf
 # end LaTex gitignore
 
 # Unity gitignore
-ProjectSolenodon/[Ll]ibrary/
-ProjectSolenodon/[Tt]emp/
-ProjectSolenodon/[Oo]bj/
-ProjectSolenodon/[Bb]uild/
-ProjectSolenodon/[Bb]uilds/
-ProjectSolenodon/[Ll]ogs/
-ProjectSolenodon/[Mm]emoryCaptures/
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
 
 # Never ignore Asset meta data
 !/[Aa]ssets/**/*.meta
