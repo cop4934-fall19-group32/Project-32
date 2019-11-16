@@ -8,8 +8,21 @@ public class Interpreter : MonoBehaviour
 	public GameObject SolutionPanel;
 
 	public enum OpCode { 
+		RESET,
+		TERMINATE,
+		SUBMIT,
 		INPUT,
-		OUTPUT
+		OUTPUT,
+		JUMP,
+		JUMP_IF_NULL,
+		JUMP_IF_LESS,
+		JUMP_IF_GREATER,
+		MOVE_TO,
+		COPY_TP,
+		MOVE_FROM,
+		COPY_FROM,
+		ADD,
+		SUBTRACT		
 	}
 
 	/**
@@ -44,11 +57,17 @@ public class Interpreter : MonoBehaviour
 		
     }
 
+	public void SubmitSolution(List<Command> instructions) 
+	{
+		Instructions = instructions;
+	}
+
 	/**
 	 * Allows Actor to poll the interpreter for the next instruction to execute
 	 * @return The next instruction to execute
 	 */
-	public Command PollInstruction() {
+	public Command PollInstruction() 
+	{
 		var command = Instructions[ProgramCounter++];
 		UpdateProgramCounter(command);
 		return command;
@@ -57,7 +76,8 @@ public class Interpreter : MonoBehaviour
 	/**
 	 *  Updates program counter based on current command
 	 */
-	private void UpdateProgramCounter(Command c) {
+	private void UpdateProgramCounter(Command c) 
+	{
 		if (/*isSomeSortOfJump(c.Op)*/ false) {
 			//ProgramCounter = c.Arg;	
 		}
