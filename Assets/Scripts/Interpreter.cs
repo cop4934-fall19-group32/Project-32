@@ -44,7 +44,7 @@ public class Interpreter : MonoBehaviour
 
 	// Start is called before the first frame update
 	void Start()
-    {
+	{
 		Instructions = new List<Command>();
 		Instructions.Add(new Command(OpCode.INPUT));
 		Instructions.Add(new Command(OpCode.OUTPUT));
