@@ -50,10 +50,26 @@ public class Interpreter : MonoBehaviour
 	 */
 	public Command PollInstruction() {
 		var command = Instructions[ProgramCounter++];
-		ProgramCounter %= Instructions.Count;
+		UpdateProgramCounter(command);
 		return command;
 	}
 
+	/**
+	 *  Updates program counter based on current command
+	 */
+	private void UpdateProgramCounter(Command c) {
+		if (/*isSomeSortOfJump(c.Op)*/ false) {
+			//ProgramCounter = c.Arg;	
+		}
+		else {
+			ProgramCounter++;
+			ProgramCounter %= Instructions.Count;
+		}
+	}
+
+	/** Represents player solution in SolutionUI */
 	private List<Command> Instructions;
+
+	/** Represents pointer to next instruction to execute */
 	private int ProgramCounter;
 }
