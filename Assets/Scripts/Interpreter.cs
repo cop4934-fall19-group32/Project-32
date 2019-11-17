@@ -18,7 +18,7 @@ public class Interpreter : MonoBehaviour
 		JUMP_IF_LESS,
 		JUMP_IF_GREATER,
 		MOVE_TO,
-		COPY_TP,
+		COPY_TO,
 		MOVE_FROM,
 		COPY_FROM,
 		ADD,
