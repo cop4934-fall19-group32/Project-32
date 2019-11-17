@@ -14,6 +14,7 @@ public class PuzzleGenerator : MonoBehaviour
     public GameObject stackCard;
     public GameObject queueCard;
     public GameObject heapCard;
+    public GameObject[] numbers;
 
     private Transform LevelHolder;
 
@@ -36,11 +37,7 @@ public class PuzzleGenerator : MonoBehaviour
         }
     }
 
-    // This method is temporarily being used to initialize a sample scene containing:
-    //     - 2 register cards
-    //     - 2 stack cards
-    //     - 2 queue cards
-    //     - 2 heap cards
+    // This method is temporarily being used to initialize a sample scene.
     // 
     // when this is updated to be dynamic, how will the number of each card be passed to the function?
     void CreateSampleLevel()
@@ -48,8 +45,10 @@ public class PuzzleGenerator : MonoBehaviour
         string path = "Assets/Resources/PuzzleSaves/puzzle1.json";
         using (StreamWriter stream = new StreamWriter(path))
         {
-            PuzzleData samplePuzzle = new PuzzleData(2, 2, 2, 2);
-            int x = samplePuzzle.NumHeapCards;
+            PuzzleData samplePuzzle = new PuzzleData(
+                new int[] { 3, 1, 7, 9, 2 },
+                2, 2, 2, 2
+            );
             string json = JsonUtility.ToJson(samplePuzzle);
             stream.Write(json);
         }
@@ -72,10 +71,20 @@ public class PuzzleGenerator : MonoBehaviour
             Instantiate(heapCard, new Vector3(i+1, 7), Quaternion.identity);
     }
 
+    void initializeInputStream()
+    {
+        for (int i = 0; i < puzzleData.InputStream.Length; i++)
+        {
+            Instantiate(numbers[puzzleData.InputStream[i]],
+                GameObject.Find("InputSlot" + i).transform.position,
+                Quaternion.identity);
+        }
+    }
+
     public void SetupBoard(int level)
     {
         CreateSampleLevel();
         DeserializePuzzleData(level);
-        instantiateCards();
+        initializeInputStream();
     }
 }
