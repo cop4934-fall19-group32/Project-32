@@ -1,5 +1,6 @@
-[merge]
-	tool = unityyamlmerge
+[merge "unity_yaml_merge"]
+name = A custom merge driver for Unity files
+driver = 'driver = './Tools/Unity5_60f3/UnityYAMLMerge.bat' merge -p %O %B %A %P %L' merge -p %O %B %A %P %L
 
 [mergetool "unityyamlmerge"]
 	trustExitCode = false
