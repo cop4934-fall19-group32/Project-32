@@ -9,11 +9,14 @@ using UnityEngine;
 /// </summary>
 public class PuzzleGenerator : MonoBehaviour
 {
+    public const int InputBoxSize = 5;
     public PuzzleData puzzleData;
     public GameObject registerCard;
     public GameObject stackCard;
     public GameObject queueCard;
     public GameObject heapCard;
+    public ArrayList inputCurrent;
+    public ArrayList outputCurrent;
     public GameObject[] numbers;
 
     private Transform LevelHolder;
@@ -75,16 +78,59 @@ public class PuzzleGenerator : MonoBehaviour
     {
         for (int i = 0; i < puzzleData.InputStream.Length; i++)
         {
-            Instantiate(numbers[puzzleData.InputStream[i]],
+            GameObject number = (GameObject)Instantiate(numbers[puzzleData.InputStream[i]],
                 GameObject.Find("InputSlot" + i).transform.position,
                 Quaternion.identity);
+            number.name = "Num" + i;
+            inputCurrent.Add(puzzleData.InputStream[i]);
         }
+    }
+
+    public (GameObject, int) Input()
+    {
+        if (inputCurrent.Count == 0)
+            return (null, 0);
+
+        // Get the highest item from the input box and make it invisible.
+        GameObject NumObject = GameObject.Find("Num" + (inputCurrent.Count - 1));
+        NumObject.GetComponent<Renderer>().enabled = false;
+
+        // Get the data the item represents and remove it from inputCurrent.
+        int numData = (int)inputCurrent[inputCurrent.Count - 1];
+        inputCurrent.RemoveAt(inputCurrent.Count - 1);
+
+        // Move the rest of the input to the top of the input box.
+        for (int i = 0; i < inputCurrent.Count; i++)
+        {
+            GameObject CurrentNumObject = GameObject.Find("Num" + (inputCurrent.Count - 1 - i));
+            CurrentNumObject.transform.position = GameObject.Find("InputSlot" + (InputBoxSize - 1 - i)).transform.position;
+        }
+
+        return (NumObject, numData);
+    }
+
+    public void Output(GameObject NumObject, int numData)
+    {
+        if (NumObject == null)
+            return;
+
+        NumObject.transform.position = GameObject.Find("OutputSlot" + outputCurrent.Count).transform.position;
+        NumObject.GetComponent<Renderer>().enabled = true;
+        outputCurrent.Add(numData);
+    }
+
+    public void InputToOutput()
+    {
+        (GameObject NumObject, int numData) = Input();
+        Output(NumObject, numData);
     }
 
     public void SetupBoard(int level)
     {
         CreateSampleLevel();
         DeserializePuzzleData(level);
+        inputCurrent = new ArrayList();
+        outputCurrent = new ArrayList();
         initializeInputStream();
     }
 }
