@@ -9,11 +9,15 @@ using UnityEngine;
 /// </summary>
 public class PuzzleGenerator : MonoBehaviour
 {
+    public const int InputBoxSize = 5;
     public PuzzleData puzzleData;
     public GameObject registerCard;
     public GameObject stackCard;
     public GameObject queueCard;
     public GameObject heapCard;
+    public ArrayList inputCurrent;
+    public ArrayList outputCurrent;
+    public GameObject[] numbers;
 
     private Transform LevelHolder;
 
@@ -36,11 +40,7 @@ public class PuzzleGenerator : MonoBehaviour
         }
     }
 
-    // This method is temporarily being used to initialize a sample scene containing:
-    //     - 2 register cards
-    //     - 2 stack cards
-    //     - 2 queue cards
-    //     - 2 heap cards
+    // This method is temporarily being used to initialize a sample scene.
     // 
     // when this is updated to be dynamic, how will the number of each card be passed to the function?
     void CreateSampleLevel()
@@ -48,8 +48,10 @@ public class PuzzleGenerator : MonoBehaviour
         string path = "Assets/Resources/PuzzleSaves/puzzle1.json";
         using (StreamWriter stream = new StreamWriter(path))
         {
-            PuzzleData samplePuzzle = new PuzzleData(2, 2, 2, 2);
-            int x = samplePuzzle.NumHeapCards;
+            PuzzleData samplePuzzle = new PuzzleData(
+                new int[] { 3, 1, 7, 9, 2 },
+                2, 2, 2, 2
+            );
             string json = JsonUtility.ToJson(samplePuzzle);
             stream.Write(json);
         }
@@ -72,10 +74,63 @@ public class PuzzleGenerator : MonoBehaviour
             Instantiate(heapCard, new Vector3(i+1, 7), Quaternion.identity);
     }
 
+    void initializeInputStream()
+    {
+        for (int i = 0; i < puzzleData.InputStream.Length; i++)
+        {
+            GameObject number = (GameObject)Instantiate(numbers[puzzleData.InputStream[i]],
+                GameObject.Find("InputSlot" + i).transform.position,
+                Quaternion.identity);
+            number.name = "Num" + i;
+            inputCurrent.Add(puzzleData.InputStream[i]);
+        }
+    }
+
+    public (GameObject, int) Input()
+    {
+        if (inputCurrent.Count == 0)
+            return (null, 0);
+
+        // Get the highest item from the input box and make it invisible.
+        GameObject NumObject = GameObject.Find("Num" + (inputCurrent.Count - 1));
+        NumObject.GetComponent<Renderer>().enabled = false;
+
+        // Get the data the item represents and remove it from inputCurrent.
+        int numData = (int)inputCurrent[inputCurrent.Count - 1];
+        inputCurrent.RemoveAt(inputCurrent.Count - 1);
+
+        // Move the rest of the input to the top of the input box.
+        for (int i = 0; i < inputCurrent.Count; i++)
+        {
+            GameObject CurrentNumObject = GameObject.Find("Num" + (inputCurrent.Count - 1 - i));
+            CurrentNumObject.transform.position = GameObject.Find("InputSlot" + (InputBoxSize - 1 - i)).transform.position;
+        }
+
+        return (NumObject, numData);
+    }
+
+    public void Output(GameObject NumObject, int numData)
+    {
+        if (NumObject == null)
+            return;
+
+        NumObject.transform.position = GameObject.Find("OutputSlot" + outputCurrent.Count).transform.position;
+        NumObject.GetComponent<Renderer>().enabled = true;
+        outputCurrent.Add(numData);
+    }
+
+    public void InputToOutput()
+    {
+        (GameObject NumObject, int numData) = Input();
+        Output(NumObject, numData);
+    }
+
     public void SetupBoard(int level)
     {
         CreateSampleLevel();
         DeserializePuzzleData(level);
-        instantiateCards();
+        inputCurrent = new ArrayList();
+        outputCurrent = new ArrayList();
+        initializeInputStream();
     }
 }

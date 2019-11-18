@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Card
   layers:
   - Default
   - TransparentFX
@@ -38,6 +39,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 3618364113
+    locked: 0
+  - name: StaticPuzzleElements
+    uniqueID: 1450987509
+    locked: 0
+  - name: Numbers
+    uniqueID: 41550015
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

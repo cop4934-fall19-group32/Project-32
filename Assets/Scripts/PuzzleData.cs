@@ -20,6 +20,9 @@ public class PuzzleData
     [SerializeField]
     private int _numHeapCards;
 
+    [SerializeField]
+    private int[] _inputStream;
+
     public int NumRegisterCards
     {
         get => _numRegisterCards;
@@ -39,12 +42,18 @@ public class PuzzleData
     {
         get => _numHeapCards;
     }
-
-    public PuzzleData(int numRegisterCards, int numStackCards, int numQueueCards, int numHeapCards)
+    
+    public int[] InputStream
+    {
+        get => _inputStream;
+    }
+    
+    public PuzzleData(int[] inputStream, int numRegisterCards, int numStackCards, int numQueueCards, int numHeapCards)
     {
         _numRegisterCards = numRegisterCards;
         _numStackCards = numStackCards;
         _numQueueCards = numQueueCards;
         _numHeapCards = numHeapCards;
+        _inputStream = inputStream;
     }
 }
