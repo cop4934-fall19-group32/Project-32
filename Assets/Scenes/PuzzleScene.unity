@@ -313,12 +313,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34fde936fab23bb4fb8d0fbcb2e020e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
-  - {fileID: 1625330377}
-  - {fileID: 1990790586}
-  - {fileID: 988648109}
-  - {fileID: 1391411469}
-  moveSpeed: 10
+  RestWaypoint: {fileID: 988648109}
+  InputWaypoint: {fileID: 1625330377}
+  OutputWaypoint: {fileID: 1990790586}
+  RegisterWaypoint: {fileID: 1391411469}
+  moveSpeed: 100
 --- !u!212 &936836007
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -548,7 +547,7 @@ GameObject:
   - component: {fileID: 1391411469}
   - component: {fileID: 1391411468}
   m_Layer: 0
-  m_Name: Waypoint - Cards
+  m_Name: Waypoint - Registers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
