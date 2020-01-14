@@ -1,5 +1,0 @@
-*.unity binary
-*.prefab binary
-*.asset binary
-
-Assets/**/*.unity merge=unity_yaml_merge

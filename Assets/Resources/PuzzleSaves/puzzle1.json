@@ -1,1 +1,1 @@
-{"_numRegisterCards":2,"_numStackCards":2,"_numQueueCards":2,"_numHeapCards":2,"_inputStream":[3,1,7,9,2]}
+{"_numRegisterCards":0,"_numStackCards":0,"_numQueueCards":0,"_numHeapCards":0,"_description":"Move the contents of the input box over to the output box in the same order they appear in.","_inputStream":[3,1,7,9,2],"_instructions":[0,0,1,5,5,0,0,0,0,0,0,0,0,0,0]}
