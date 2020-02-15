@@ -27,7 +27,7 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 	/** Captures neighbors as adjacency list to make pathfinding algorithms easier */
 	public List<MapNode> AdjacencyList { get; private set; }
 
-	public bool Locked { get; private set; }
+	public bool Locked { get; set; }
 
     // Start is called before the first frame update
     void Start() {
@@ -58,22 +58,7 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 		}
 		if (West) {
 			AdjacencyList.Add(West);
-		}
-
-		if (PlayerPrefs.GetInt("Stars") < ScoreRequired) {
-			Locked = true;
-			ParticleSystem ps = GetComponent<ParticleSystem>();
-			ParticleSystem.MainModule ma = ps.main;
-
-			var gradient = new ParticleSystem.MinMaxGradient(
-				new Color(0.25f, 0.25f, 0.25f),
-				new Color(1, 0, 0)
-			);
-
-			gradient.mode = ParticleSystemGradientMode.TwoColors;
-
-			ma.startColor = gradient;
-		}
+		} 
 
 		//Lines between nodes are drawn at initialization
 		DrawLevelPaths();
@@ -199,4 +184,5 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, pin.transform.position);
     }
+
 }

@@ -5,25 +5,28 @@ using UnityEngine;
 public class OutputBox : MonoBehaviour
 {
     public const int OutputBoxSize = 5;
-    public OutputGeneration outputGeneration;
+    private OutputGeneration outputGeneration;
     public ArrayList outputContents;
     public ArrayList outputExpected;
     public GameObject DataCube;
     public AudioSource outputSound;
 
-    public void InitializeOutput(int[] InputStream, int puzzleId)
+    public void InitializeOutput(int[] InputStream, string puzzleName)
     {
         outputContents = new ArrayList();
         outputGeneration = GetComponent<OutputGeneration>();
-        outputExpected = outputGeneration.generateExpectedOutput(puzzleId, InputStream);
+        outputExpected = outputGeneration.generateExpectedOutput(puzzleName, InputStream);
     }
 
     public void ResetOutput()
     {
-        for (int i = 0; i < outputContents.Count; i++)
+        for (int i = 0; i < OutputBoxSize; i++)
         {
             GameObject OutputDataCube = GameObject.Find("OutputNum" + i);
-            Destroy(OutputDataCube.gameObject);
+            if (OutputDataCube != null)
+            {
+                Destroy(OutputDataCube.gameObject);
+            }
         }
         outputContents = new ArrayList();
     }
@@ -32,7 +35,6 @@ public class OutputBox : MonoBehaviour
     {
         if (outputContents.Count != outputExpected.Count)
         {
-            GetComponent<SubmitPanel>().ShowSubmitPanel(false);
             return false;
         }
 
@@ -40,13 +42,37 @@ public class OutputBox : MonoBehaviour
         {
             if ((int)outputContents[i] != (int)outputExpected[i])
             {
-                GetComponent<SubmitPanel>().ShowSubmitPanel(false);
                 return false;
             }
         }
 
-        GetComponent<SubmitPanel>().ShowSubmitPanel(true);
+        GameObject PuzzleGenerator = GameObject.Find("PuzzleGenerator");
+        PuzzleGenerator.GetComponent<SubmitPanel>().ShowSubmitPanel();
+        PuzzleGenerator.GetComponent<PuzzleGenerator>().solved = true;
         return true;
+    }
+
+    void UpdateOutputBox()
+    {
+        int numDataCubes;
+
+        if (outputContents.Count < OutputBoxSize)
+        {
+            numDataCubes = outputContents.Count;
+        }
+        else
+        {
+            numDataCubes = OutputBoxSize - 1;
+            GameObject OutputDataCube = GameObject.Find("OutputNum" + (OutputBoxSize - 1));
+            Destroy(OutputDataCube.gameObject);
+        }
+
+        for (int i = 0; i < numDataCubes; i++)
+        {
+            GameObject CurrentNumObject = GameObject.Find("OutputNum" + i);
+            CurrentNumObject.transform.position = GameObject.Find("OutputSlot" + (i + 1)).transform.position;
+            CurrentNumObject.name = "OutputNum" + (i + 1);
+        }
     }
 
     // This function takes in data from Computron, moves it into the correct position in 
@@ -57,8 +83,6 @@ public class OutputBox : MonoBehaviour
     // - false for runtime error
     public bool Output(int? numData)
     {
-        ArrayList testExp = outputExpected;
-
         if (outputContents.Count >= outputExpected.Count)
             return false;
 
@@ -66,9 +90,11 @@ public class OutputBox : MonoBehaviour
             return false;
 
         outputSound.Play();
+
+        UpdateOutputBox();
         outputContents.Add(numData);
 
-        var targetSlot = GameObject.Find("OutputSlot" + (outputContents.Count - 1));
+        GameObject targetSlot = GameObject.Find("OutputSlot0");
 
         // Instantiate the correct data item and place it in the next open outbox slot.
         GameObject number = Instantiate(
@@ -76,9 +102,8 @@ public class OutputBox : MonoBehaviour
             targetSlot.transform.position,
             Quaternion.identity
         );
-        
 
-        number.name = "OutputNum" + (outputContents.Count - 1);
+        number.name = "OutputNum0";
         number.GetComponentInChildren<TextMesh>().text = numData.ToString();
         return true;
     }

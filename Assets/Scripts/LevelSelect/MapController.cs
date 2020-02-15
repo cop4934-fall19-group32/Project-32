@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,35 +17,83 @@ public class MapController : MonoBehaviour
 	[Header("Initialization")] //
 	public MapNode StartNode;
 
-	/*
+    public const int NumMapNodes = 10;
+
+    public GameObject[] MapNodes = new GameObject[NumMapNodes];
+
+    /*
 	 * Function called before the first frame of gameplay
 	 */
-	private void Awake() 
+    private void Awake() 
 	{
 		if (!PlayerPrefs.HasKey("Stars")) {
 			PlayerPrefs.SetInt("Stars", 0);
 		}
 	}
 
-	// Start is called before the first frame update
-	void Start()
+    private PlayerState GetPlayerState()
     {
-		if (PlayerPrefs.HasKey("CachedLevelPin")) {
-			var start = transform.Find(PlayerPrefs.GetString("CachedLevelPin")).GetComponent<MapNode>();
-			if (start == null) {
-				Debug.LogError("CachedLevelPin not found");
-			}
-			LevelSelectCharacter.Initialize(start);
-		}
-		else {
-			LevelSelectCharacter.Initialize(StartNode);
-		}
-		//if (CachedStart != null) {
-		//	LevelSelectCharacter.Initialize(CachedStart);
-		//}
-		//else {
-		//	LevelSelectCharacter.Initialize(StartNode);
-		//}
+        GameObject playerStateObj = GameObject.Find("PlayerState");
+
+        if (playerStateObj == null)
+            return null;
+
+        return playerStateObj.GetComponent<PlayerState>();
+    }
+
+    void SetupMapNodes()
+    {
+        PlayerState playerState = GetPlayerState();
+        // what if none found
+
+        for (int i = 0; i < MapNodes.Length; i++)
+        {
+            bool solved = playerState.GetPuzzleCompleted(MapNodes[i].name);
+
+            if (playerState.GetScore() < MapNodes[i].GetComponent<MapNode>().ScoreRequired)
+            {
+                // This level is locked. Lock it on the map and color it red.
+                MapNodes[i].GetComponent<MapNode>().Locked = true;
+                ParticleSystem ps = MapNodes[i].GetComponent<ParticleSystem>();
+                ParticleSystem.MainModule ma = ps.main;
+
+                var gradient = new ParticleSystem.MinMaxGradient(
+                    new Color(0.25f, 0.25f, 0.25f),
+                    new Color(1, 0, 0)
+                );
+
+                gradient.mode = ParticleSystemGradientMode.TwoColors;
+
+                ma.startColor = gradient;
+            }
+            else if (solved)
+            {
+                // This level is solved. Color it green on the map.
+                ParticleSystem ps = MapNodes[i].GetComponent<ParticleSystem>();
+                ParticleSystem.MainModule ma = ps.main;
+
+                var gradient = new ParticleSystem.MinMaxGradient(
+                    new Color(0.25f, 0.25f, 0.25f),
+                    new Color(0, 1, 0)
+                );
+
+                gradient.mode = ParticleSystemGradientMode.TwoColors;
+
+                ma.startColor = gradient;
+            }
+            else
+            {
+                // Update the start node to the last unlocked level that is not solved.
+                StartNode = MapNodes[i].GetComponent<MapNode>();
+            }
+        }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        SetupMapNodes();
+        LevelSelectCharacter.Initialize(StartNode);
     }
 
     // Update is called once per frame

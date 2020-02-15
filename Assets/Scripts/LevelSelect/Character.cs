@@ -166,8 +166,14 @@ public class Character : MonoBehaviour
 		}
 
 		MoveTargetQueue = pathFinder.RouteTo(CurrentNode, moveTarget);
-		IsMoving = true;
-		CurrentMoveTarget = MoveTargetQueue.Dequeue();
+
+		if (MoveTargetQueue.Count == 0) {
+			return;
+		}
+		else { 
+			IsMoving = true;
+			CurrentMoveTarget = MoveTargetQueue.Dequeue();
+		}
 	}
 
 
@@ -180,7 +186,7 @@ public class Character : MonoBehaviour
         if (IsMoving || CurrentNode.IsJunction) {
             return;
         }
-		PlayerPrefs.SetInt("SelectedLevel", CurrentNode.LevelCode);
+        PlayerPrefs.SetString("SelectedLevel", CurrentNode.name);
 		PlayerPrefs.SetString("CachedLevelPin", CurrentNode.name);
 
 		SceneManager.LoadScene(PuzzleScene.handle);

@@ -4,6 +4,25 @@ using UnityEngine;
 
 public class Pathfinder : MonoBehaviour
 {
+	class Neighbor : System.IComparable<Neighbor> {
+		public MapNode node;
+		public float cost;
+
+		public Neighbor(MapNode node, float cost) {
+			this.node = node;
+			this.cost = cost;
+		}
+
+		public int CompareTo(Neighbor other) {
+			if (cost < other.cost) {
+				return -1;
+			}
+			else if (cost == other.cost) {
+				return 0;
+			}
+			else return 1;
+		}
+	}
 	/**
 	 * Function to handle user RouteTo request (clicking on map node)
 	 * @param targetNode The node to route to
@@ -17,33 +36,33 @@ public class Pathfinder : MonoBehaviour
 		HashSet<MapNode> visited = new HashSet<MapNode>();
 
 		//Horizon of nodes visible but yet to be visited
-		PriorityQueue<MapNode> horizon = new PriorityQueue<MapNode>();
+		PriorityQueue<Neighbor> horizon = new PriorityQueue<Neighbor>();
 
 		//Initialize graph data as viewed from start node
 		costs[currentNode] = 0;
 		parentDictionary[currentNode] = currentNode;
-		horizon.Push(currentNode, 0);
+		horizon.Push(new Neighbor(currentNode, 0));
 
 		var targetPosition = targetNode.transform.position;
 
 		//A* Pathfinding algorithm
 		while (!horizon.IsEmpty) {
-			MapNode curr = horizon.Top;
+			Neighbor curr = horizon.Top;
 			horizon.Pop();
 
-			if (curr == targetNode) {
+			if (curr.node == targetNode) {
 				break;
 			}
 
-			RelaxCosts(curr, costs, parentDictionary);
+			RelaxCosts(curr.node, costs, parentDictionary);
 
-			var currPosition = curr.transform.position;
+			var currPosition = curr.node.transform.position;
 
-			foreach (var neighbor in curr.AdjacencyList) {
+			foreach (var neighbor in curr.node.AdjacencyList) {
 				if (!visited.Contains(neighbor) && !neighbor.Locked) {
 					var neighborPosition = neighbor.transform.position;
 					var cost = CalculateCost(currPosition, neighborPosition);
-					horizon.Push(neighbor, cost + CalcHeuristic(neighborPosition, targetPosition));
+					horizon.Push(new Neighbor(neighbor, cost + CalcHeuristic(neighborPosition, targetPosition)));
 					visited.Add(neighbor);
 				}
 			}

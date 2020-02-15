@@ -10,9 +10,9 @@ using UnityEngine;
 /// </summary>
 public class GameState : MonoBehaviour
 {
-    public PuzzleGenerator puzzleGenerator;
+    private PuzzleGenerator puzzleGenerator;
 
-    private int defaultLevel = 1;
+    private string defaultLevel = "Default";
 
     void Awake()
     {
@@ -23,7 +23,7 @@ public class GameState : MonoBehaviour
     void InitGame()
     {
         if (PlayerPrefs.HasKey("SelectedLevel"))
-            puzzleGenerator.SetupBoard(PlayerPrefs.GetInt("SelectedLevel"));
+            puzzleGenerator.SetupBoard(PlayerPrefs.GetString("SelectedLevel"));
         else
             puzzleGenerator.SetupBoard(defaultLevel);
     }

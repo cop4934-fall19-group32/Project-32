@@ -24,22 +24,26 @@ public class InputBox : MonoBehaviour
 
     void ClearInputBox()
     {
-        for (int i = InputBoxSize - inputContents.Count; i < InputBoxSize; i++)
+        for (int i = 0; i < InputBoxSize; i++)
         {
-            GameObject InputDataCube = GameObject.Find("Num" + i);
-            Destroy(InputDataCube.gameObject);
+            GameObject InputDataCube = GameObject.Find("InputNum" + i);
+            if (InputDataCube != null)
+            {
+                Destroy(InputDataCube.gameObject);
+            }
         }
     }
 
     void PopulateInputBox()
     {
-        for (int i = 0; i < inputContents.Count; i++)
+        int numDataCubes = (inputContents.Count < InputBoxSize) ? inputContents.Count : InputBoxSize;
+        for (int i = 0; i < numDataCubes; i++)
         {
             GameObject number = (GameObject)Instantiate(DataCube,
                 GameObject.Find("InputSlot" + i).transform.position,
                 Quaternion.identity);
 
-            number.name = "Num" + i;
+            number.name = "InputNum" + i;
             number.GetComponentInChildren<TextMesh>().text = inputContents[i].ToString();
         }
     }
@@ -52,22 +56,19 @@ public class InputBox : MonoBehaviour
         if (inputContents.Count == 0)
             return null;
 
+
         inputSound.Play();
 
         // Get the item from the top of the input box.
-        GameObject NumObject = GameObject.Find("Num" + (InputBoxSize - inputContents.Count));
+        GameObject NumObject = GameObject.Find("InputNum0");
 
         // Get the data the item represents and remove it from inputContents.
         int numData = (int)inputContents[0];
         inputContents.RemoveAt(0);
         Destroy(NumObject.gameObject);
 
-        // Move the rest of the input box contents up one input slot.
-        for (int i = 0; i < inputContents.Count; i++)
-        {
-            GameObject CurrentNumObject = GameObject.Find("Num" + (InputBoxSize - inputContents.Count + i));
-            CurrentNumObject.transform.position = GameObject.Find("InputSlot" + i).transform.position;
-        }
+        ClearInputBox();
+        PopulateInputBox();
 
         return numData;
     }
