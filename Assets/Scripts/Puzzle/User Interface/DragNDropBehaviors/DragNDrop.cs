@@ -29,22 +29,32 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 	// If the button clones itself, store a reference to the duplicate.
 	private GameObject clone;
 
-    public void Initialize()
-    {
-        dragTargetValid = true;
-
-
-        UICanvas = GetComponentInParent<Canvas>();
-        rectTransform = GetComponent<RectTransform>();
-        canvasGroup = GetComponent<CanvasGroup>();
-
-        var buttonText = GetComponentInChildren<TextMeshProUGUI>();
-        buttonText.SetText(GetComponent<Command>().Instruction.ToString());
-    }
-
-    protected virtual void Awake()
+	public void Initialize()
 	{
-        Initialize();
+		dragTargetValid = true;
+
+
+		GameObject mainUICanvas = GameObject.FindWithTag("MainUICanvas");
+		if (mainUICanvas == null)
+		{
+			Debug.LogWarning("Couldn't find game object with tag MainUICanvas.");
+		}
+
+		UICanvas = mainUICanvas.GetComponent<Canvas>();
+		rectTransform = GetComponent<RectTransform>();
+		canvasGroup = GetComponent<CanvasGroup>();
+
+		var buttonText = GetComponentInChildren<TextMeshProUGUI>();
+		buttonText.SetText(GetComponent<Command>().Instruction.ToString());
+	}
+
+	protected virtual void Awake()
+	{
+		Initialize();
+	}
+
+	protected virtual void OnDestroy() {
+		;
 	}
 
 	// Called when beginning to drag object

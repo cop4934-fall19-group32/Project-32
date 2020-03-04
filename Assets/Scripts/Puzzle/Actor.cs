@@ -20,13 +20,14 @@ public class Actor : MonoBehaviour
 
     // components that Actor needs to interface with
     private Interpreter commandStream;
-    private CardContainer registerContainer;
+    private CardContainer cardContainer;
 
     public GameObject InputBox;
     public GameObject OutputBox;
 
     // variables for handling/displaying data values
     private Nullable<int> CurrentValue;
+    private Nullable<uint> CurrentArg;
     private TextMesh Display;
 
     // variables for handling instructions
@@ -51,9 +52,10 @@ public class Actor : MonoBehaviour
     {
         // acquire Scene References
         commandStream = FindObjectOfType<Interpreter>();
-        registerContainer = GameObject.FindWithTag("RegisterContainer").GetComponent<CardContainer>();
+        cardContainer = GameObject.FindWithTag("RegisterContainer").GetComponent<CardContainer>();
         InputBox = this.transform.parent.Find("Input").gameObject;
         OutputBox = this.transform.parent.Find("Output").gameObject;
+
 
         // initialize display
         Display = GetComponentsInChildren<TextMesh>()[0];
@@ -96,6 +98,9 @@ public class Actor : MonoBehaviour
 
             yield return new WaitForSeconds(0.25f);
         }
+
+        // reset text displayed to empty when exiting the IDLE state
+        Display.text = "";
     }
 
     // controls movement between waypoints
@@ -154,6 +159,11 @@ public class Actor : MonoBehaviour
                 yield return new WaitForSeconds(1);
             }
         }
+        if (current.Instruction == OpCode.MOVE_TO)
+        {
+            Display.text = "CANNOT STORE A NULL VALUE.";
+            yield return new WaitForSeconds(1);
+        }
 
         while (currentState == ACTOR_STATE.HALTED)
         {
@@ -169,13 +179,13 @@ public class Actor : MonoBehaviour
             CompleteExecution(new ExecutionReport(true));
         }
 
+        currentState = ACTOR_STATE.IDLE;
     }
 
     IEnumerator INPUT()
     {
         if (previous != null && previous.Instruction == OpCode.INPUT)
         {
-            previous = null;
             yield return new WaitForSeconds(InstructionDelay);
         }
 
@@ -198,13 +208,13 @@ public class Actor : MonoBehaviour
         }
         else if (!OutputBox.GetComponent<OutputBox>().Output(CurrentValue.Value))
         {
-            //Outputted value was invalid
+            // Outputted value was invalid
             CompleteExecution(new ExecutionReport(true));
             yield return null;
         }
         else
         {
-            //Outputted value was valid
+            // Outputted value was valid
             CurrentValue = null;
             Display.text = "";
             CompleteExecution(new ExecutionReport(false));
@@ -225,6 +235,48 @@ public class Actor : MonoBehaviour
     IEnumerator NO_OP() 
     {
         yield return new WaitForSeconds(InstructionDelay);
+        CompleteExecution(new ExecutionReport(false));
+    }
+
+    IEnumerator MOVE_TO()
+    {
+        CurrentArg = current.Arg;
+        CardLogic card = cardContainer.GetCard((int)CurrentArg);
+
+        // trying to store null causes a runtime error
+        if (CurrentValue == null)
+        {
+            CompleteExecution(new ExecutionReport(true));
+        }
+        else
+        {
+            // put down the value held, and hands are now empty
+            card.MoveTo((int)CurrentValue);
+            CurrentValue = null;
+            Display.text = "";
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        CompleteExecution(new ExecutionReport(false));
+    }
+
+    IEnumerator MOVE_FROM()
+    {
+        CurrentArg = current.Arg;
+        CardLogic card = cardContainer.GetCard((int)CurrentArg);
+
+        if (previous != null && previous.Instruction == OpCode.MOVE_FROM)
+        {
+            yield return new WaitForSeconds(InstructionDelay);
+        }
+
+        CurrentValue = card.MoveFrom();
+        // allows Computron to "carry" the current data value
+        if (CurrentValue != null)
+        {
+            Display.text = CurrentValue.ToString();
+        }
+
         CompleteExecution(new ExecutionReport(false));
     }
 
@@ -274,6 +326,15 @@ public class Actor : MonoBehaviour
         else if (current.Instruction == OpCode.OUTPUT)
         {
             return OutputWaypoint.transform.position;
+        }
+        else if (current.Instruction == OpCode.MOVE_TO || current.Instruction == OpCode.MOVE_FROM)
+        {
+            // retrieve the waypoint of the current card
+            CurrentArg = current.Arg;
+            CardLogic card = cardContainer.GetCard((int)CurrentArg);
+            var waypoint = card.GetWaypoint();
+            waypoint.z = transform.position.z;
+            return waypoint;
         }
 
         return transform.position;

@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class SaveButtonHandler : MonoBehaviour
 {
+    [SerializeField]
+    public GameObject ConfirmationPanel;
+
     private int Slot;
     private void Awake() {
         Slot = transform.GetSiblingIndex() + 1;
@@ -35,6 +38,11 @@ public class SaveButtonHandler : MonoBehaviour
             Debug.LogError("PlayerState not found. Delete failed");
         }
 
+        ConfirmationPanel.GetComponent<DeleteConfirmationPanel>().ShowDeleteConfirmationPanel(slot, gameObject);
+    }
+
+    public void ConfirmedDelete(int slot) {
+        var playerState = FindObjectOfType<PlayerState>();
         playerState.EraseSave(slot);
     }
 }

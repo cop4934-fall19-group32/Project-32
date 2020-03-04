@@ -5,44 +5,67 @@ using UnityEngine.UI;
 
 /**
  * @class ControlGroup
- * @brief Controllable UI element that forwards enable/disable 
+ * @brief Controllable UI element that forwards enable/disable
  *        commands to all of the controls it contains.
  */
 [RequireComponent(typeof(CanvasGroup))]
 public class UIControlGroup : ControllableUIElement
 {
-    /** Dynamically populated list of child control objects */
-    private UIControl[] ChildControls;
-    private CanvasGroup Group;
+	protected override void Awake()
+	{
+		base.Awake();
 
-    private void Start() 
-    {
-        ChildControls = GetComponentsInChildren<UIControl>();
-        ElementGraphic = GetComponent<Image>();
-        Group = GetComponent<CanvasGroup>();
-    }
+		ElementGraphic = GetComponent<Image>();
 
-    public override void Enable() {
-        RefreshChildControls();
-        foreach (var child in ChildControls) {
-            child.Enable();
-        }
+	}
 
-        Group.interactable = true;
-        Group.blocksRaycasts = true;
-    }
+	public override void Focus()
+	{
+		GetChildControls();
+		canvas.sortingLayerName = "Focus";
+		foreach (var child in GetChildControls())
+		{
+			child.Focus();
+		}
+	}
 
-    public override void Disable() {
-        RefreshChildControls();
-        foreach (var child in ChildControls) {
-            child.Disable();
-        }
+	public override void Unfocus()
+	{
+		GetChildControls();
+		canvas.sortingLayerName = "Default";
+		foreach (var child in GetChildControls())
+		{
+			child.Unfocus();
+		}
+	}
 
-        Group.interactable = false;
-        Group.blocksRaycasts = false;
-    }
+	public override void Enable()
+	{
+		GetChildControls();
+		foreach (var child in GetChildControls())
+		{
+			child.Enable();
+		}
+		canvasGroup.interactable = true;
+		canvasGroup.blocksRaycasts = true;
+		canvasGroup.alpha = 1f;
+	}
 
-    private void RefreshChildControls() {
-        ChildControls = GetComponentsInChildren<UIControl>();
-    }
+	public override void Disable()
+	{
+		foreach (var child in GetChildControls())
+		{
+			child.Disable();
+		}
+		canvasGroup.interactable = false;
+		canvasGroup.blocksRaycasts = false;
+		canvasGroup.alpha = 0.9f;
+	}
+
+	// Because child controls can be reparented through gameplay, ControlGroup should
+	// ensure it gets a correct list of child controls. Setting on awake could lead to invalid operations
+	private UIControl[] GetChildControls()
+	{
+		return GetComponentsInChildren<UIControl>();
+	}
 }

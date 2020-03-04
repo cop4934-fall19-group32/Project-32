@@ -70,12 +70,12 @@ PrefabInstance:
     - target: {fileID: 3133256309748666270, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -569.7745
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3133256309748666270, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -102.16417
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3133256309748666270, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
@@ -117,21 +117,10 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
-        type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 8e76e8e610f81ca4db8b5b36793c2aa9,
-        type: 3}
     - target: {fileID: 3986204572139861053, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
       propertyPath: ElementName
       value: QueueCard
-      objectReference: {fileID: 0}
-    - target: {fileID: 4423051769394595748, guid: efa0066b97c081441b273d9831acad45,
-        type: 3}
-      propertyPath: CardType
-      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 608453579456476129, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
@@ -182,6 +171,17 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: Queue
+      objectReference: {fileID: 0}
+    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: e6b7b8a278d9bd241b2b44550ed84860,
+        type: 3}
+    - target: {fileID: 4423051769394595748, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: CardType
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: efa0066b97c081441b273d9831acad45, type: 3}

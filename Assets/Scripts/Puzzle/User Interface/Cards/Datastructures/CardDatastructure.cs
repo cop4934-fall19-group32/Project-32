@@ -4,9 +4,9 @@ using UnityEngine;
 
 public abstract class CardDatastructure
 {
-    public abstract void MoveTo(int num);
+    public abstract void Add(int num);
 
-    public abstract int? MoveFrom();
+    public abstract int? Remove();
 
     public abstract int? Peek();
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public enum CardType { 
     REGISTER,
@@ -13,7 +14,7 @@ public class CardLogic : MonoBehaviour {
 
     public CardType CardType;
 
-    public GameObject BoundInstruction { get; private set; }
+    public List<GameObject> BoundInstructions { get; private set; }
 
     private CardDatastructure datastructure;
 
@@ -41,6 +42,7 @@ public class CardLogic : MonoBehaviour {
     private void Awake() {
         PanelText = transform.Find("Panel").GetComponentInChildren<TMPro.TextMeshProUGUI>();
         LabelText = transform.Find("Label").GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        BoundInstructions = new List<GameObject>();
     }
 
     // Start is called before the first frame update
@@ -67,24 +69,61 @@ public class CardLogic : MonoBehaviour {
 
     private void Update() {
         PanelText.text = datastructure.Peek().ToString();
-        if (BoundInstruction != null) {
-            GetComponent<UIControl>().Disable();
+    }
+
+    private IEnumerator WaitForUnlink() {
+
+        while (BoundInstructions.Count == 0) {
+            yield return null;
         }
+
+        GetComponent<UIControl>().Enable();
+        yield break;
     }
 
     public void LinkInstruction(GameObject instruction) {
-        BoundInstruction = instruction;
+        BoundInstructions.Add(instruction);
+        GetComponent<UIControl>().Disable();
+        StartCoroutine(WaitForUnlink());
+    }
+
+    public void UnlinkInstruction(GameObject instruction) {
+        //Iterates backwards through array to avoid counter invalidation.
+        BoundInstructions.RemoveAll(element => element == instruction);
+
+        if (BoundInstructions.Count == 0) {
+            GetComponent<CardUIControl>().Enable();
+        }
     }
 
     public void MoveTo(int num) {
-        datastructure.MoveTo(num);
+        datastructure.Add(num);
     }
 
     public int? MoveFrom() {
-        return datastructure.MoveFrom();
+        return datastructure.Remove();
+    }
+
+    public void CopyTo(int num) {
+        datastructure.Add(num);
+    }
+
+    public int? CopyFrom()
+    {
+        return datastructure.Peek();
     }
 
     public void ClearData() {
         datastructure.ClearData();
+    }
+
+    public Vector3 GetWaypoint()
+    {
+        Vector3[] target = new Vector3[4];
+        PanelText.rectTransform.GetWorldCorners(target);
+        float x = target[2].x - ((target[2].x - target[1].x) / 2);
+        float y = target[1].y + 20;
+        float z = target[1].z;
+        return new Vector3(x, y, x);
     }
 }

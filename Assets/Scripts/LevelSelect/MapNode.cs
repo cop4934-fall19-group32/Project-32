@@ -18,7 +18,8 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
     public bool IsJunction;
 
 	/** Member variables to allow neigbor specificaiton in editor */
-    [Header("Neighbors")] //
+	[Header("Neighbors")] //
+	public MapNode Next;
     public MapNode North;
     public MapNode South;
     public MapNode East;
@@ -29,8 +30,11 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 
 	public bool Locked { get; set; }
 
-    // Start is called before the first frame update
-    void Start() {
+    // Configure all Per-node data and display options before other scripts need access
+    void Awake() {
+		var playerState = FindObjectOfType<PlayerState>();
+		FindObjectOfType<MapController>().RegisterMapNode(gameObject);
+
 		//Disable development sprite visible in the editor
 		if (!NodeVisible) {
 			var sprite = GetComponent<SpriteRenderer>();
@@ -62,6 +66,37 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 
 		//Lines between nodes are drawn at initialization
 		DrawLevelPaths();
+		
+		ParticleSystem ps = GetComponentInChildren<ParticleSystem>();
+
+		bool solved = playerState.GetPuzzleCompleted(gameObject.name);
+		if (playerState.GetScore() < ScoreRequired) {
+			Locked = true;
+			
+			ParticleSystem.MainModule ma = ps.main;
+
+			var gradient = new ParticleSystem.MinMaxGradient(
+				new Color(0.25f, 0.25f, 0.25f),
+				new Color(1, 0, 0)
+			);
+
+			gradient.mode = ParticleSystemGradientMode.TwoColors;
+
+			ma.startColor = gradient;
+		}
+		else if (solved) {
+			// This level is solved. Color it green on the map.
+			ParticleSystem.MainModule ma = ps.main;
+
+			var gradient = new ParticleSystem.MinMaxGradient(
+				new Color(0.25f, 0.25f, 0.25f),
+				new Color(0, 1, 0)
+			);
+
+			gradient.mode = ParticleSystemGradientMode.TwoColors;
+
+			ma.startColor = gradient;
+		}
 	}
 
 	// Update is called once per frame
@@ -92,7 +127,7 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 			return;
 		}
 
-		mapcontroller.ReportMoveTarget(this);
+		mapcontroller.ReportNodeSelection(this);
 	}
 
 	/**

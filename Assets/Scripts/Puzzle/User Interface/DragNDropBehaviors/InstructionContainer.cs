@@ -34,6 +34,18 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 	}
 
 
+	protected virtual void Start()
+	{
+		foreach (Transform content in contentPanel.transform)
+		{
+			if (content.transform.localPosition.z < 0)
+			{
+				content.transform.localPosition = new Vector3(content.transform.localPosition.x, content.transform.localPosition.y, 0);
+			}
+		}
+	}
+
+
 	public void OnDrop(PointerEventData eventData)
 	{
 		GameObject pendingInstruction = eventData.pointerDrag;
@@ -82,7 +94,6 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 
 	public void SpawnButtonSlot(PointerEventData eventData)
 	{
-
 		if (locked || temporaryButtonSlot != null)
 		{
 			Debug.LogWarning("ButtonSlot Already Spawned. Ignoring request for a new one.");
@@ -113,39 +124,40 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 
 	public void UpdateScrollView(PointerEventData eventData)
 	{
-		var camera = FindObjectOfType<Camera>();
+		// var camera = FindObjectOfType<Camera>();
+		Camera mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+		Vector2 pointerPosition = mainCamera.ScreenToWorldPoint(eventData.position);
 
-		Vector2 pointerPosition = camera.ScreenToWorldPoint(eventData.position);
-		if (temporaryButtonSlot == null)
+		foreach (Transform content in contentPanel.transform)
 		{
-			return;
-		}
+			if (content.transform.localPosition.z < 0)
+			{
+				content.transform.localPosition = new Vector3(content.transform.localPosition.x, content.transform.localPosition.y, 0);
+			}
 
-		foreach (Transform sibling in contentPanel.transform)
-		{
-			if (sibling.gameObject == temporaryButtonSlot)
+			if (temporaryButtonSlot == null || content.gameObject == temporaryButtonSlot)
 			{
 				continue;
 			}
-			else if (sibling.gameObject.name == "Placeholder")
+			else if (content.gameObject.name == "Placeholder")
 			{
 				Debug.Log("Deleting leftover placeholder");
-				Destroy(sibling.gameObject);
+				Destroy(content.gameObject);
 			}
-			var siblingIndex = sibling.transform.GetSiblingIndex();
+			var siblingIndex = content.transform.GetSiblingIndex();
 			var tempSlotIndex = temporaryButtonSlot.transform.GetSiblingIndex();
 
-			if (pointerPosition.y > sibling.transform.position.y && tempSlotIndex > siblingIndex )
+			if (pointerPosition.y > content.transform.position.y && tempSlotIndex > siblingIndex )
 			{
-				// If the button is being dragged above the sibling, but the new item slot is below the sibling (higher index),
+				// If the button is being dragged above the content, but the new item slot is below the content (higher index),
 				// move the new item slot up.
-				temporaryButtonSlot.transform.SetSiblingIndex(sibling.transform.GetSiblingIndex());
+				temporaryButtonSlot.transform.SetSiblingIndex(content.transform.GetSiblingIndex());
 			}
-			else if (pointerPosition.y <= sibling.transform.position.y && tempSlotIndex < siblingIndex)
+			else if (pointerPosition.y <= content.transform.position.y && tempSlotIndex < siblingIndex)
 			{
-				// If the button is being dragged below the sibling, but the new item slot is above the sibling (lower index),
+				// If the button is being dragged below the content, but the new item slot is above the content (lower index),
 				// move the new item slot down.
-				temporaryButtonSlot.transform.SetSiblingIndex(sibling.transform.GetSiblingIndex());
+				temporaryButtonSlot.transform.SetSiblingIndex(content.transform.GetSiblingIndex());
 			}
 		}
 	}

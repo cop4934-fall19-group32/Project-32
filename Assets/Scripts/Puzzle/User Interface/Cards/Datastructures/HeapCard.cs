@@ -5,7 +5,7 @@ using UnityEngine;
 public class HeapCard : CardDatastructure
 {
     private ArrayList heap = new ArrayList();
-    public override void MoveTo(int num)
+    public override void Add(int num)
     {
         int index = heap.BinarySearch(num);
         if (index < 0)
@@ -14,7 +14,7 @@ public class HeapCard : CardDatastructure
             heap.Insert(index, num);
     }
 
-    public override int? MoveFrom()
+    public override int? Remove()
     {
         if (heap.Count == 0)
             return null;

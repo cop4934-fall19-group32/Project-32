@@ -13,6 +13,8 @@ public class CardContainer : MonoBehaviour, IDropHandler {
 
     public CardContainerType ContainerType;
 
+    public int Count { get { return transform.childCount; } }
+
     /**
      * Allows actor to query CardContainer for a card with the supplied address
      * @param address The integer value of the card's address
@@ -23,13 +25,15 @@ public class CardContainer : MonoBehaviour, IDropHandler {
             return null;
         }
 
-        return transform.Find(System.Convert.ToString(address, 16)).GetComponent<CardLogic>();
+        // convert the address from int to hex representation so it can be found in the scene
+        string s = "0x" + System.Convert.ToString(address, 16);
+        return transform.Find(s).GetComponent<CardLogic>();
     }
 
     public void OnDrop(PointerEventData eventData) {
         Debug.Log(eventData.pointerDrag.name + " dropped on " + gameObject.name);
 
-        var drag = eventData.pointerDrag.GetComponent<CardController>();
+        var drag = eventData.pointerDrag.GetComponent<CardDragBehavior>();
         if (drag != null) {
             drag.ActiveContainerTransform = transform;
             drag.transform.SetParent(transform);

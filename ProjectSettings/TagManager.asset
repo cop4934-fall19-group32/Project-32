@@ -8,6 +8,7 @@ TagManager:
   - UILock
   - MainUICanvas
   - RegisterContainer
+  - Blur
   layers:
   - Default
   - TransparentFX
@@ -51,6 +52,18 @@ TagManager:
   - name: Numbers
     uniqueID: 41550015
     locked: 0
+  - name: Disabled
+    uniqueID: 2579519269
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UIControl
+    uniqueID: 3241159123
+    locked: 0
+  - name: Blur
+    uniqueID: 1593145037
+    locked: 0
+  - name: Focus
+    uniqueID: 1468076185
     locked: 0

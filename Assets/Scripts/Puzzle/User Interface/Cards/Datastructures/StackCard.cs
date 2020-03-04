@@ -5,12 +5,12 @@ using UnityEngine;
 public class StackCard : CardDatastructure
 {
     private Stack<int> stack = new Stack<int>();
-    public override void MoveTo(int num)
+    public override void Add(int num)
     {
         stack.Push(num);
     }
 
-    public override int? MoveFrom()
+    public override int? Remove()
     {
         if (stack.Count == 0)
             return null;

@@ -923,10 +923,10 @@ RectTransform:
   m_Father: {fileID: 4507620676435305499}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -25}
-  m_SizeDelta: {x: 256, y: 50}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4507620676436179079
 CanvasRenderer:
@@ -1206,6 +1206,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4507620676679830924}
     m_Modifications:
+    - target: {fileID: 1562678652372035291, guid: 59da5a05229d3ae4d9ff3b93049792da,
+        type: 3}
+      propertyPath: m_Name
+      value: CachedInstruction (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1562678652372035291, guid: 59da5a05229d3ae4d9ff3b93049792da,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1562678652372035288, guid: 59da5a05229d3ae4d9ff3b93049792da,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1310,16 +1320,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1562678652372035291, guid: 59da5a05229d3ae4d9ff3b93049792da,
-        type: 3}
-      propertyPath: m_Name
-      value: CachedInstruction (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1562678652372035291, guid: 59da5a05229d3ae4d9ff3b93049792da,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1562678652372035266, guid: 59da5a05229d3ae4d9ff3b93049792da,
         type: 3}
@@ -1366,6 +1366,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4507620676679830924}
     m_Modifications:
+    - target: {fileID: 1562678652372035291, guid: 59da5a05229d3ae4d9ff3b93049792da,
+        type: 3}
+      propertyPath: m_Name
+      value: CachedInstruction (1)
+      objectReference: {fileID: 0}
     - target: {fileID: 1562678652372035288, guid: 59da5a05229d3ae4d9ff3b93049792da,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1470,11 +1475,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1562678652372035291, guid: 59da5a05229d3ae4d9ff3b93049792da,
-        type: 3}
-      propertyPath: m_Name
-      value: CachedInstruction (1)
       objectReference: {fileID: 0}
     - target: {fileID: 1562678652372035266, guid: 59da5a05229d3ae4d9ff3b93049792da,
         type: 3}

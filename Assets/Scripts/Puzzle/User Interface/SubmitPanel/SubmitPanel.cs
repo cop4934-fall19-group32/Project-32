@@ -5,9 +5,11 @@ using UnityEngine;
 public class SubmitPanel : MonoBehaviour
 {
     public GameObject SubmitPanelObject;
+    public AudioSource solvedSound;
+
     public void ShowSubmitPanel()
     {
-        SubmitPanelObject.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Solution Accepted";
+        solvedSound.Play();
         SubmitPanelObject.SetActive(true);
     }
 

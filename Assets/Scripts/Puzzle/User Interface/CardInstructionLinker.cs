@@ -19,31 +19,29 @@ public class CardInstructionLinker : MonoBehaviour
             Debug.LogError("CardInstructionLinker cannot link null instruction. Terminating");
             Destroy(this);
         }
+
+        StartCoroutine(Link());
     }
 
     public void ReportCardSelection(GameObject clickedCard) {
         Card = clickedCard;
     }
 
-    public IEnumerator Link() {
+    private IEnumerator Link() {
         Debug.Log("Beginning linker phase");
 
         var uiController = FindObjectOfType<UIController>();
-        //uiController.DisableAll();
-        //uiController.EnableUIElement("CardPlayArea");
-        uiController.HighlightUIElement("CardPlayArea");
+        uiController.FocusUIElement("CardPlayArea");
 
 
         while (Card == null) {
             yield return null;
         }
 
-        Instruction.GetComponent<CardCommandDragNDrop>().ArgumentText.text = Card.GetComponent<CardLogic>().Address;
+        Instruction.GetComponent<CardCommandDragNDrop>().BindCard(Card);
         Card.GetComponent<CardLogic>().LinkInstruction(Instruction);
 
-        uiController.EnableAll();
-        uiController.DisableUIElement("PauseButton");
-        uiController.StopHighlightUIElement("CardPanel");
+        uiController.ClearFocus();
 
         Debug.Log("Instruction linked. Linker self-destructing");
         Destroy(this);

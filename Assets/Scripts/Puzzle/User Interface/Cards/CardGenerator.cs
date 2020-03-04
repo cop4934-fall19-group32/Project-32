@@ -20,25 +20,24 @@ public class CardGenerator : MonoBehaviour
     // attaches the necessary card script to the object.
     private void InstantiateCards(PuzzleData puzzleData)
     {
-        SpawnCard(RegisterCardPrefab, puzzleData.NumRegisterCards);
-        SpawnCard(StackCardPrefab, puzzleData.NumStackCards);
-        SpawnCard(QueueCardPrefab, puzzleData.NumQueueCards);
-        SpawnCard(HeapCardPrefab, puzzleData.NumHeapCards);
+        System.Random random = new System.Random(puzzleData.CardAddressSeed);
+        SpawnCard(RegisterCardPrefab, puzzleData.NumRegisterCards, random);
+        SpawnCard(StackCardPrefab, puzzleData.NumStackCards, random);
+        SpawnCard(QueueCardPrefab, puzzleData.NumQueueCards, random);
+        SpawnCard(HeapCardPrefab, puzzleData.NumHeapCards, random);
     }
 
-    private void SpawnCard(GameObject prefab, int num) {
+    private void SpawnCard(GameObject prefab, int num, System.Random random) {
         for (int i = 0; i < num; i++) {
-            GameObject cardObj = Instantiate(prefab);
-            string address = GenerateAddress();
+            GameObject cardObj = Instantiate(prefab, transform);
+            string address = GenerateAddress(random);
             cardObj.name = address;
             cardObj.GetComponent<CardLogic>().Address = address;
-            cardObj.transform.SetParent(this.transform);
             cardObj.transform.localScale = GetComponent<CardContainer>().containerScale;
         }
     }
 
-    private string GenerateAddress() {
-        System.Random random = new System.Random();
+    private string GenerateAddress(System.Random random) {
         int num = random.Next(0x100, 0xFFF);
 
         // No duplicates!

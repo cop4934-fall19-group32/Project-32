@@ -5,17 +5,14 @@ using UnityEngine;
 public class OutputBox : MonoBehaviour
 {
     public const int OutputBoxSize = 5;
-    private OutputGeneration outputGeneration;
-    public ArrayList outputContents;
-    public ArrayList outputExpected;
+    public List<int> outputContents;
+    public List<int> outputExpected;
     public GameObject DataCube;
     public AudioSource outputSound;
-
-    public void InitializeOutput(int[] InputStream, string puzzleName)
+    public void InitializeOutput(List<int> output)
     {
-        outputContents = new ArrayList();
-        outputGeneration = GetComponent<OutputGeneration>();
-        outputExpected = outputGeneration.generateExpectedOutput(puzzleName, InputStream);
+        outputContents = new List<int>();
+        outputExpected = output;
     }
 
     public void ResetOutput()
@@ -28,7 +25,7 @@ public class OutputBox : MonoBehaviour
                 Destroy(OutputDataCube.gameObject);
             }
         }
-        outputContents = new ArrayList();
+        outputContents = new List<int>();
     }
 
     public bool GradeOutput()
@@ -40,7 +37,7 @@ public class OutputBox : MonoBehaviour
 
         for (int i = 0; i < outputContents.Count; i++)
         {
-            if ((int)outputContents[i] != (int)outputExpected[i])
+            if (outputContents[i] != outputExpected[i])
             {
                 return false;
             }
@@ -86,13 +83,13 @@ public class OutputBox : MonoBehaviour
         if (outputContents.Count >= outputExpected.Count)
             return false;
 
-        if (numData != (int)outputExpected[outputContents.Count])
+        if (numData != outputExpected[outputContents.Count])
             return false;
 
         outputSound.Play();
 
         UpdateOutputBox();
-        outputContents.Add(numData);
+        outputContents.Add((int)numData);
 
         GameObject targetSlot = GameObject.Find("OutputSlot0");
 

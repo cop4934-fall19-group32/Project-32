@@ -17,25 +17,25 @@ public enum MoveDirection {
 public class Character : MonoBehaviour
 {
 	[Header("Movement Settings")] //
-	public float BaseSpeed = 3.0f;
-	public float MaxMoveTime = 1.5f;
-    
-    public bool IsMoving { get; private set; }
+	public float TopMoveSpeed = 15.0f;
+	public float MoveTime = 0.5f;
+
+	[Header("Dependencies")] //
+	public LevelSelectCameraController CameraController;
 
 	/** Editor handle for the Puzzle Scene */
-    public Scene PuzzleScene;
+	public Scene PuzzleScene;
 
 	/** The node the character is currently resting on */
     public MapNode CurrentNode { get; private set; }
 
+	/** Allows systems to query if Character is in motion */
+    public bool IsMoving { get; private set; }
+
 	/** Queue of move targets when moving in pathfinding mode */
     private Queue<MapNode> MoveTargetQueue = new Queue<MapNode>();
 
-	/** Target for the active transition, if any */
-	private MapNode CurrentMoveTarget;
-
-	/** Velocity vector of the transition */
-	private Vector3 MoveVelocity = new Vector3();
+	private Vector3 velocity = Vector3.zero;
 
 	/**
 	 * Unity function called before any Start() functions
@@ -59,7 +59,6 @@ public class Character : MonoBehaviour
     void Update() 
 	{
 		ProcessInput();
-		Move();
 	}
 
 	/**
@@ -80,41 +79,6 @@ public class Character : MonoBehaviour
 		}
 		else if (Input.GetKeyUp(KeyCode.Return) || Input.GetKeyUp(KeyCode.KeypadEnter)) {
 			SelectLevel();
-		}
-	}
-
-	/**
-	 * Attempts to move Character towards it's current targetnode, if 
-	 * available
-	 */
-	private void Move() 
-	{
-		const float MIN_DIST_SQR = 0.01f;
-		
-		//No action necessary if actor is at rest.
-		if (!IsMoving) {
-			return;
-		}
-
-		//TODO @MrLever: Expose this propery in editor (#60)
-
-		//Calculate translation vector between character and target node
-		var currPosition = transform.position;
-		var targetPosition = CurrentMoveTarget.transform.position;
-		var translationVector = targetPosition - currPosition;
-
-		//Check if actor is close enough to node
-		if (translationVector.sqrMagnitude > MIN_DIST_SQR) {
-			transform.position =
-				Vector3.SmoothDamp(
-					transform.position,
-					CurrentMoveTarget.transform.position,
-					ref MoveVelocity,
-					0.3f
-				);
-		}
-		else {
-			GetNextMoveTarget();
 		}
 	}
 
@@ -145,8 +109,18 @@ public class Character : MonoBehaviour
             return;
         }
 
-        IsMoving = true;
-		CurrentMoveTarget = targetNode;
+		MoveTargetQueue.Enqueue(targetNode);
+
+		StartCoroutine(Move());
+	}
+
+	public void HandleNodeSelect(MapNode node) {
+		if (node == CurrentNode) {
+			SelectLevel();
+		}
+		else {
+			TriggerMove(node);
+		}
 	}
 
 	/**
@@ -167,16 +141,8 @@ public class Character : MonoBehaviour
 
 		MoveTargetQueue = pathFinder.RouteTo(CurrentNode, moveTarget);
 
-		if (MoveTargetQueue.Count == 0) {
-			return;
-		}
-		else { 
-			IsMoving = true;
-			CurrentMoveTarget = MoveTargetQueue.Dequeue();
-		}
+		StartCoroutine(Move());
 	}
-
-
 
 	/**
 	 * Logic to handle user level selection
@@ -189,32 +155,37 @@ public class Character : MonoBehaviour
         PlayerPrefs.SetString("SelectedLevel", CurrentNode.name);
 		PlayerPrefs.SetString("CachedLevelPin", CurrentNode.name);
 
+		var currentPuzzleData = CurrentNode.GetComponentInChildren<PuzzleData>();
+		FindObjectOfType<GameState>().SelectedPuzzle = currentPuzzleData;
+
 		SceneManager.LoadScene(PuzzleScene.handle);
     }
 
-	/**
-	 * Aquires next move target from MoveTargetQueue, and calculates MoveVelocity
-	 */
-    private void GetNextMoveTarget() 
-    {
-		CurrentNode = CurrentMoveTarget;
-        CurrentMoveTarget = (MoveTargetQueue.Count > 0) ? MoveTargetQueue.Dequeue() : null;
-		if (CurrentMoveTarget == null) { 
-			IsMoving = false;
-			return;
+	IEnumerator Move() {
+		const float MIN_DIST_SQR = 0.01f;
+		IsMoving = true;
+
+		yield return StartCoroutine(CameraController.PanToTarget(gameObject));
+
+		while (MoveTargetQueue.Count > 0) {
+			var target = MoveTargetQueue.Dequeue();
+			while (Vector3.SqrMagnitude(transform.position - target.transform.position) > MIN_DIST_SQR) {
+				Debug.Log("MoveTowards");
+
+				transform.position = Vector3.SmoothDamp(
+					transform.position, 
+					target.transform.position, 
+					ref velocity,
+					MoveTime, 
+					TopMoveSpeed
+				);
+
+				yield return null;
+			}
+			CurrentNode = target;
 		}
 
-		//Calculate initial velocity of actor
-		//TODO @MrLever: This code should be refactored to live elsewhere as part of #60
-		var translationVector = CurrentMoveTarget.transform.position - transform.position;
-		float distance = (transform.position - CurrentMoveTarget.transform.position).magnitude;
-
-		float projectedMoveTime = distance / BaseSpeed;
-		float speed = BaseSpeed;
-		if (projectedMoveTime > MaxMoveTime) {
-			speed = distance / MaxMoveTime;
-		}
-
-		MoveVelocity = speed * translationVector;
+		IsMoving = false;
+		yield break;
 	}
 }

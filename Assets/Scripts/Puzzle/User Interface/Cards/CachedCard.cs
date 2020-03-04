@@ -7,10 +7,10 @@ using System;
 [Serializable]
 public struct CachedCard
 {
-    public string type;
+    public string address;
 
-    public CachedCard(string t)
+    public CachedCard(string address)
     {
-        type = t;
+        this.address = address;
     }
 }

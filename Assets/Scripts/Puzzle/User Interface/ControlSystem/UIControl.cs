@@ -3,33 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class UIControl : ControllableUIElement
 {
 
-    private Button ControlButton;
+	private Button controlButton;
 
-    private void Awake() 
-    {
-        ElementGraphic = GetComponent<Image>();
-        ControlButton = GetComponent<Button>();
-    }
+	protected override void Awake()
+	{
+		base.Awake();
 
-    private void Update() {
-        
-    }
+		ElementGraphic = GetComponent<Image>();
+		controlButton = GetComponent<Button>();
+	}
 
-    public override void Enable() 
-    {
-        if (ControlButton) {
-            ControlButton.interactable = true;
-        }
-    }
+	protected void OnDestroy() {
+		var controller = FindObjectOfType<UIController>();
+		if (controller) { 
+			controller.RemoveEntry(this);
+		}
+	}
 
-    public override void Disable() 
-    {
-        if (ControlButton) { 
-            ControlButton.interactable = false;
-        }
-    }
+	public override void Focus()
+	{
+		canvas.sortingLayerName = "Focus";
+	}
+
+	public override void Unfocus()
+	{
+		canvas.sortingLayerName = "Default";
+	}
+
+
+	public override void Enable()
+	{
+		canvasGroup.blocksRaycasts = true;
+		canvasGroup.alpha = 1f;
+	}
+
+	public override void Disable()
+	{
+		canvasGroup.blocksRaycasts = false;
+		canvasGroup.alpha = 0.5f;
+	}
 
 }

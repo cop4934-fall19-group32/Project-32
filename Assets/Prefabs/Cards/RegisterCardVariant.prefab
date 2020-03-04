@@ -204,5 +204,11 @@ PrefabInstance:
       propertyPath: m_margin.y
       value: -0.29756165
       objectReference: {fileID: 0}
+    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 544fb41efa88b1f47a74a4a46b8e284d,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: efa0066b97c081441b273d9831acad45, type: 3}

@@ -31,6 +31,7 @@ public class PlayerState : MonoBehaviour
 
     private void Awake() 
     {
+        ActiveSave = new Save();
         SaveDirectory = Application.persistentDataPath + "/";
         BinarySaveFileName = "ComputronSave";
         BinarySaveFileExtension = ".save";
@@ -191,8 +192,7 @@ public class PlayerState : MonoBehaviour
         {
             foreach (Transform cardObj in cardPlayedPanel.transform)
             {
-                string type = cardObj.name.Split('x')[0];
-                puzzleData.CachedCards.Add(new CachedCard(type));
+                puzzleData.CachedCards.Add(new CachedCard(cardObj.name));
             }
         }
 

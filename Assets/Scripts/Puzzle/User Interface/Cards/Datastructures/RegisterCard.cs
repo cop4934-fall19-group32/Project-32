@@ -5,12 +5,12 @@ using UnityEngine;
 public class RegisterCard : CardDatastructure
 {
     private int? register;
-    public override void MoveTo(int num)
+    public override void Add(int num)
     {
         register = num;
     }
 
-    public override int? MoveFrom()
+    public override int? Remove()
     {
         int? ret = register;
         register = null;

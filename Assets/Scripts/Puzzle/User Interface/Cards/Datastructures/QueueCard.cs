@@ -5,12 +5,12 @@ using UnityEngine;
 public class QueueCard : CardDatastructure
 {
     private Queue<int> queue = new Queue<int>();
-    public override void MoveTo(int num)
+    public override void Add(int num)
     {
         queue.Enqueue(num);
     }
 
-    public override int? MoveFrom()
+    public override int? Remove()
     {
         if (queue.Count == 0)
             return null;
