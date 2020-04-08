@@ -9,33 +9,69 @@ using UnityEngine.SceneManagement;
 /// The PuzzleGenerator class is used to fill the puzzle board scene with
 /// data that is specific to a puzzle's intial state or it's saved state.
 /// </summary>
+///
+[RequireComponent(typeof(InstructionFactory))]
+[RequireComponent(typeof(CardGenerator))]
 public class PuzzleGenerator : MonoBehaviour
 {
     private string puzzleName;
     private PuzzleData puzzleData;
+    private PlayerState playerState;
+    private GameState gameState;
 
-    public bool solved;
-    private bool EarnedEfficiencyStar;
-    private bool EarnedInstructionCountStar;
-    private bool EarnedMemoryStar;
-
+    private bool FirstVisit = false;
     public GameObject UICanvas;
     public GameObject CardHandPanel;
     public GameObject CardPlayedPanel;
-    public GameObject PuzzleDataParent;
+    public GameObject SubmitPanel;
     public GameObject InputBox;
     public GameObject OutputBox;
-    public GameObject CachedInstruction;
-    public GameObject JumpCachedInstruction;
-    public GameObject JumpAnchorCachedInstruction;
+    public GameObject SolutionWindow;
 
-    private void Awake() {
-        if (PlayerPrefs.HasKey("SelectedLevel")) {
-            SetupBoard(PlayerPrefs.GetString("SelectedLevel"));
+    private bool firstFrame = true;
+
+    private void Awake()
+    {
+        gameState = FindObjectOfType<GameState>();
+        puzzleData = gameState.SelectedPuzzle;
+        GameObject playerStateObj = GameObject.Find("PlayerState");
+
+        if (playerStateObj == null)
+        {
+            Debug.Log("Could not find PlayerState game object.");
+            return;
         }
-        else { 
-            SetupBoard("Default");
+
+        playerState = playerStateObj.GetComponent<PlayerState>();
+        puzzleName = puzzleData.PuzzleName;
+
+        SetupBoard();
+    }
+
+    protected void Update() {
+        if (FirstVisit && firstFrame) {
+            // Starting a coroutine allows us to use yield semantics to control the timings between tutorialization steps
+            StartCoroutine(TutorializationRoutine());
+            firstFrame = false;
         }
+    }
+
+    public void SetupBoard() {
+        // Fill the puzzle scene with the puzzle data.
+        UICanvas.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = puzzleData.Description;
+        GetComponent<CardGenerator>().GenerateHand(puzzleData);
+        InputBox.GetComponent<InputBox>().InitializeInput(puzzleData.InputStream);
+        OutputBox.GetComponent<OutputBox>().InitializeOutput(puzzleData.OutputStream);
+
+        if (!playerState.ContainsPuzzleSave(this.puzzleName)) {
+            FirstVisit = true;
+            playerState.AddPuzzleSave(this.puzzleName);
+        }
+
+        // Fill cached data.
+        LoadCachedCards(playerState.GetCachedCards(this.puzzleName));
+        LoadCachedInstructions(playerState.GetCachedSolution(this.puzzleName));
+
     }
 
     private PlayerState GetPlayerState()
@@ -48,112 +84,122 @@ public class PuzzleGenerator : MonoBehaviour
         return playerStateObj.GetComponent<PlayerState>();
     }
 
-    private void ResetPuzzleSolution(PlayerState playerState)
-    {
-        playerState.SavePuzzleSolution(this.puzzleName, null, null);
-    }
-
-    private void SavePuzzleSolution(PlayerState playerState)
-    {
-        GameObject solutionPanel = UICanvas.transform.Find("Solution Window").gameObject;
-        playerState.SavePuzzleSolution(this.puzzleName, solutionPanel, CardPlayedPanel);
-    }
-
-    private void MarkPuzzleCompleted(PlayerState playerState)
-    {
-        // No need to do anything if this puzzle has already been completed.
-        if (playerState.GetPuzzleCompleted(this.puzzleName))
-            return;
-
-        playerState.MarkPuzzleCompleted(this.puzzleName);
-        this.EarnedInstructionCountStar = true;
-        playerState.AddToScore(1);
-    }
-
-    private void UpdateLevelStars(PlayerState playerState)
-    {
-        if (this.EarnedEfficiencyStar)
-            playerState.EarnStar(this.puzzleName, StarType.EFFICIENCY);
-        if (this.EarnedInstructionCountStar)
-            playerState.EarnStar(this.puzzleName, StarType.INSTRUCTION_COUNT);
-        if (this.EarnedMemoryStar)
-            playerState.EarnStar(this.puzzleName, StarType.MEMORY);
-    }
-
-    public void UpdateActiveSave()
-    {
-        PlayerState playerState = GetPlayerState();
-
-        if (playerState == null)
-        {
-            Debug.Log("Could not find PlayerState game object.");
-            return;
-        }
-
-        ResetPuzzleSolution(playerState);
-        SavePuzzleSolution(playerState);
-
-        if (this.solved)
-            MarkPuzzleCompleted(playerState);
-
-        UpdateLevelStars(playerState);
-        playerState.SaveGame();
-    }
-
     private void LoadCachedInstructions(List<CachedCommand> CachedInstructions)
     {
         Transform solutionPanel = UICanvas.transform.Find("Solution Window");
         Transform instructionContainer = solutionPanel.Find("Scroll View/Viewport/Content");
         Vector3 instructionScale = new Vector3((float)0.9999999, (float)0.999999, (float)0.9999999);
-        //Spawn instructions
+        // Spawn instructions
         foreach (var command in CachedInstructions)
         {
-            GameObject instructionObj;
+            GameObject instructionObj =
+                GetComponent<InstructionFactory>().SpawnInstruction(
+                    command.instruction,
+                    instructionContainer
+                );
 
-            if (command.instruction == OpCode.JUMP || command.instruction == OpCode.JUMP_IF_NULL) {
-                instructionObj = Instantiate(JumpCachedInstruction, new Vector3(0, 0, 0), Quaternion.identity);
-            }
-            else if (command.instruction == OpCode.NO_OP) {
-                instructionObj = Instantiate(JumpAnchorCachedInstruction, new Vector3(0, 0, 0), Quaternion.identity);
-            }
-            else {
-                instructionObj = Instantiate(CachedInstruction, new Vector3(0, 0, 0), Quaternion.identity);
+            //Special actions must be taken for card based instructions
+            if (instructionObj.GetComponent<CardCommandDragNDrop>() != null)
+            {
+                var address = "0x" + command.arg.ToString("x3");
+                var card = GameObject.Find(address);
+                instructionObj.GetComponent<CardCommandDragNDrop>().BindCard(card);
+                card.GetComponent<CardLogic>().LinkInstruction(instructionObj);
             }
 
             instructionObj.GetComponent<DragNDrop>().isClonable = false;
+            instructionObj.GetComponent<DragNDrop>().activeDynamicScrollView = SolutionWindow.GetComponent<InstructionContainer>();
             instructionObj.GetComponent<Command>().Instruction = command.instruction;
             instructionObj.GetComponent<Command>().Arg = (uint)command.arg;
-            instructionObj.transform.SetParent(instructionContainer);
+            instructionObj.GetComponent<Command>().Target = (uint)command.target;
             instructionObj.GetComponent<DragNDrop>().Initialize();
             instructionObj.transform.localScale = instructionScale;
+            instructionObj.GetComponent<ControllableUIElement>().Initialize();
         }
 
         //Iterate over instructions to reconnect jump lines
-        foreach (Transform child in instructionContainer) {
+        foreach (Transform child in instructionContainer)
+        {
             var instruction = child.GetComponent<Command>();
-            if (instruction.Instruction == OpCode.JUMP || instruction.Instruction == OpCode.JUMP_IF_NULL) {
+            if (
+                instruction.Instruction == OpCode.JUMP ||
+                instruction.Instruction == OpCode.JUMP_IF_NULL ||
+                instruction.Instruction == OpCode.JUMP_IF_GREATER ||
+                instruction.Instruction == OpCode.JUMP_IF_LESS
+            )
+            {
                 var dragNDropBehavior = child.GetComponent<JumpDragNDropBehavior>();
-                dragNDropBehavior.AttachAnchor(instructionContainer.GetChild((int)instruction.Arg).gameObject);
+                dragNDropBehavior.AttachAnchor(instructionContainer.GetChild((int)instruction.Target).gameObject);
             }
         }
     }
 
     private void LoadCachedCards(List<CachedCard> CachedCards)
     {
+        var hand = CardHandPanel.GetComponent<CachedCardContainer>();
+        var spawnedCards = hand.GetCards();
+
         foreach (var card in CachedCards)
         {
             // Find the corresponding card in the card hand panel and move it to
             // the card played panel.
-            foreach (Transform cardObj in CardHandPanel.transform)
+            foreach (var cardObj in spawnedCards)
             {
                 if (cardObj.name == card.address)
                 {
-                    cardObj.SetParent(CardPlayedPanel.transform);
-                    cardObj.localScale = new Vector3(1.75f, 1.75f, 1.0f);
+                    CardPlayedPanel.GetComponent<PlayedCardContainer>().AddCard(cardObj);
+                    spawnedCards.Remove(cardObj);
                     break;
                 }
             }
         }
+    }
+
+    public List<OpCode> GetFilteredInstructions()
+    {
+        List<OpCode> filteredInstructions = new List<OpCode>();
+
+        if (puzzleData.Input)
+            filteredInstructions.Add(OpCode.INPUT);
+        if (puzzleData.Output)
+            filteredInstructions.Add(OpCode.OUTPUT);
+        if (puzzleData.Jump)
+            filteredInstructions.Add(OpCode.JUMP);
+        if (puzzleData.JumpIfNull)
+            filteredInstructions.Add(OpCode.JUMP_IF_NULL);
+        if (puzzleData.JumpIfLess)
+            filteredInstructions.Add(OpCode.JUMP_IF_LESS);
+        if (puzzleData.JumpIfGreater)
+            filteredInstructions.Add(OpCode.JUMP_IF_GREATER);
+        if (puzzleData.MoveTo)
+            filteredInstructions.Add(OpCode.MOVE_TO);
+        if (puzzleData.CopyTo)
+            filteredInstructions.Add(OpCode.COPY_TO);
+        if (puzzleData.MoveFrom)
+            filteredInstructions.Add(OpCode.MOVE_FROM);
+        if (puzzleData.CopyFrom)
+            filteredInstructions.Add(OpCode.COPY_FROM);
+        if (puzzleData.Add)
+            filteredInstructions.Add(OpCode.ADD);
+        if (puzzleData.Subtract)
+            filteredInstructions.Add(OpCode.SUBTRACT);
+
+        return filteredInstructions;
+    }
+
+    public List<OpCode> GetInstructionsToAward()
+    {
+        List<OpCode> instructionsToAward = new List<OpCode>();
+        List<OpCode> instructions = GetFilteredInstructions();
+        foreach (OpCode instruction in instructions)
+        {
+            if (!playerState.InstructionAwarded(instruction))
+            {
+                instructionsToAward.Add(instruction);
+                playerState.AddAwardedInstruction(instruction);
+            }
+        }
+        return instructionsToAward;
     }
 
     public void ResetBoard()
@@ -163,30 +209,24 @@ public class PuzzleGenerator : MonoBehaviour
         CardPlayedPanel.GetComponent<CardContainer>().ResetCards();
     }
 
-    public void SetupBoard(string puzzleName)
+    IEnumerator TutorializationRoutine()
     {
-        this.puzzleName = puzzleName;
-        this.solved = false;
-        this.EarnedEfficiencyStar = false;
-        this.EarnedInstructionCountStar = false;
-        this.EarnedMemoryStar = false;
+        var controller = FindObjectOfType<UIController>();
+        controller.ScanForControls();
 
-        // Grab the correct puzzle data.
-        puzzleData = FindObjectOfType<GameState>().SelectedPuzzle;
+        var awarder = UICanvas.GetComponent<NewInstructionController>();
 
-        // Fill the puzzle scene with the puzzle data.
-        UICanvas.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = puzzleData.Description;
-        CardHandPanel.GetComponent<CardGenerator>().InitializeHand(puzzleData);
-        InputBox.GetComponent<InputBox>().InitializeInput(puzzleData.InputStream);
-        OutputBox.GetComponent<OutputBox>().InitializeOutput(puzzleData.OutputStream);
+        //Blocks execution until instructions are awarded
+        if (awarder)
+        {
+            yield return StartCoroutine(awarder.IntroduceNewInstructions(GetInstructionsToAward()));
+        }
 
-        // Fill cached data.
-        PlayerState playerState = GetPlayerState();
+        var tutorial = gameState.SelectedPuzzle.Tutorial;
 
-        if (!playerState.ContainsPuzzleSave(this.puzzleName))
-            playerState.AddPuzzleSave(this.puzzleName);
-
-        LoadCachedInstructions(playerState.GetCachedSolution(this.puzzleName));
-        LoadCachedCards(playerState.GetCachedCards(this.puzzleName));
+        if (gameState != null && tutorial != null)
+        {
+            yield return StartCoroutine(tutorial.RunTutorial());
+        }
     }
 }

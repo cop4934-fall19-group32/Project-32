@@ -21,8 +21,7 @@ public enum OpCode
     ADD,
     SUBTRACT,
     SUBMIT,
-    NO_OP,
-    RESET
+    NO_OP
 }
 
 /**
@@ -37,6 +36,9 @@ public class Command : MonoBehaviour
 
     [SerializeField]
     public Nullable<uint> Arg;
+
+    [SerializeField]
+    public Nullable<uint> Target;
 }
 
 /**
@@ -48,8 +50,13 @@ public struct CachedCommand {
 
     public int arg;
 
-    public CachedCommand(OpCode i, int a) {
+    public int target;
+    
+    public CachedCommand(OpCode i, int a, int t) {
         instruction = i;
+        
         arg = a;
+
+        target = t;
     }
 }

@@ -43,9 +43,10 @@ public class OutputBox : MonoBehaviour
             }
         }
 
-        GameObject PuzzleGenerator = GameObject.Find("PuzzleGenerator");
-        PuzzleGenerator.GetComponent<SubmitPanel>().ShowSubmitPanel();
-        PuzzleGenerator.GetComponent<PuzzleGenerator>().solved = true;
+        // Display Award Panel.
+        GameObject PuzzleCacherObj = GameObject.Find("PuzzleCacher");
+        PuzzleCacher PuzzleCacher = PuzzleCacherObj.GetComponent<PuzzleCacher>();
+        PuzzleCacher.ShowAwardPanel();
         return true;
     }
 
@@ -101,7 +102,7 @@ public class OutputBox : MonoBehaviour
         );
 
         number.name = "OutputNum0";
-        number.GetComponentInChildren<TextMesh>().text = numData.ToString();
+        number.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = numData.ToString();
         return true;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(BezierCurveGenerator))]
 [RequireComponent(typeof(LineRenderer))]
@@ -15,13 +16,18 @@ public class JumpLineDrawer : MonoBehaviour
 
     private BezierCurveGenerator curveGenerator;
     private LineRenderer lineRenderer;
-    private static Vector3 controlpointOffset = new Vector3(10, 0, 0);
+    public Vector3 sourceControlOffset = new Vector3(30, 0, 0);
+    public Vector3 destinationControlOffset = new Vector3(50, 0, 0);
 
     // Start is called before the first frame update
     void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer = GetComponent<LineRenderer>();  
         curveGenerator = GetComponent<BezierCurveGenerator>();
+    }
+
+    private void OnDestroy() {
+
     }
 
     // Update is called once per frame
@@ -40,11 +46,11 @@ public class JumpLineDrawer : MonoBehaviour
         Vector3[] target = new Vector3[4];
         instructionTransform.GetWorldCorners(target);
         curveGenerator.Source = target[2];
-        curveGenerator.ControlPoint1 = curveGenerator.Source + controlpointOffset;
+        curveGenerator.ControlPoint1 = curveGenerator.Source + sourceControlOffset;
 
         anchorTransform.GetWorldCorners(target);
         curveGenerator.Target = target[3];
-        curveGenerator.ControlPoint2 = curveGenerator.Target + controlpointOffset;
+        curveGenerator.ControlPoint2 = curveGenerator.Target + destinationControlOffset;
     }
 
     public IEnumerator DrawJumpLine() {

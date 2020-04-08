@@ -13,20 +13,20 @@ public class UIController : MonoBehaviour
 	// Scans scene hierarchy for controllable child components
 	private void Start()
 	{
+		ScanForControls();
+	}
+
+	public void ScanForControls() {
 		ControllableUIElements = new Dictionary<string, ControllableUIElement>();
 		var controlsList = FindObjectsOfType<ControllableUIElement>();
-		foreach (var control in controlsList)
-		{
-			if (ControllableUIElements.ContainsKey(control.ElementName))
-			{
+		foreach (var control in controlsList) {
+			if (ControllableUIElements.ContainsKey(control.ElementName)) {
 				Debug.LogWarning("Error - UIController encountered duplicate control name: " + control.ElementName);
 				control.ElementName += duplicateCounter++;
 			}
 
 			ControllableUIElements.Add(control.ElementName, control);
 		}
-
-		//StartCoroutine(SortingLayerStabilizer());
 	}
 
 	private IEnumerator SortingLayerStabilizer() {
@@ -157,9 +157,10 @@ public class UIController : MonoBehaviour
 	// Multiple elements can be focused at the same time, but FocusUIElement must be called for each one.
 	public bool FocusUIElement(string elementName)
 	{
+		Debug.Log("Focusing Element: [" + elementName + "]");
 		if (!ControllableUIElements.ContainsKey(elementName))
 		{
-			Debug.LogWarning("Element \"" + elementName + "\" not found. FocusUIElement failed");
+			Debug.LogError("Element \"" + elementName + "\" not found. FocusUIElement failed");
 			return false;
 		}
 		blurPanel.SetActive(true);
@@ -182,6 +183,10 @@ public class UIController : MonoBehaviour
 		return true;
 	}
 
+	public void Blur()
+	{
+		blurPanel.SetActive(true);
+	}
 
 	// Reset so no elements are focused or blurred.
 	public void ClearFocus()
@@ -192,7 +197,6 @@ public class UIController : MonoBehaviour
 			entry.Value.Unfocus();
 		}
 	}
-
 
 	public bool HighlightUIElement(string elementName)
 	{
@@ -221,7 +225,6 @@ public class UIController : MonoBehaviour
 		return true;
 	}
 
-
 	public GameObject GetElement(string elementName)
 	{
 		if (!ControllableUIElements.ContainsKey(elementName))
@@ -241,24 +244,8 @@ public class UIController : MonoBehaviour
 		}
 	}
 
-
-	// TODO: Remove this method later.
-	// This is just for testing purposes to demonstrate focusing UI elements
-	public void FocusRandom()
-	{
-		List<string> elementNames = new List<string>();
-
-		foreach (var entry in ControllableUIElements)
-		{
-			elementNames.Add(entry.Key);
-		}
-
-		var rnd = UnityEngine.Random.Range(0, elementNames.Count);
-
-		var randName = elementNames[rnd];
-		Debug.Log("Randomly selected element: " + randName);
-		FocusUIElement(randName);
-
+	public ControllableUIElement GetControllableUIElement(string name) {
+		return ControllableUIElements[name];
 	}
 
 }

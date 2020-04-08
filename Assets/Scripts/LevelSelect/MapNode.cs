@@ -10,11 +10,17 @@ using UnityEngine.EventSystems;
  */
 public class MapNode : MonoBehaviour, IPointerClickHandler 
 {
+	[Header("Display")]
+	public Sprite LockedNode;
+	public Sprite UnlockedNode;
+	public Sprite CompletedNode;
+	public SpriteRenderer Renderer;
+	public ParticleSystem ParticleEmmiter;
+
 	/** Per node options to control node representation */
 	[Header("Options")] //
 	public int LevelCode;
 	public int ScoreRequired;
-    public bool NodeVisible;
     public bool IsJunction;
 
 	/** Member variables to allow neigbor specificaiton in editor */
@@ -36,11 +42,8 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 		FindObjectOfType<MapController>().RegisterMapNode(gameObject);
 
 		//Disable development sprite visible in the editor
-		if (!NodeVisible) {
-			var sprite = GetComponent<SpriteRenderer>();
-			if (sprite != null) {
-				sprite.enabled = false;
-			}
+		if (IsJunction) {
+			Renderer.enabled = false;
 		}
 
 		if (IsJunction && ScoreRequired != 0) {
@@ -67,13 +70,11 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 		//Lines between nodes are drawn at initialization
 		DrawLevelPaths();
 		
-		ParticleSystem ps = GetComponentInChildren<ParticleSystem>();
-
 		bool solved = playerState.GetPuzzleCompleted(gameObject.name);
 		if (playerState.GetScore() < ScoreRequired) {
 			Locked = true;
-			
-			ParticleSystem.MainModule ma = ps.main;
+
+			ParticleSystem.MainModule ma = ParticleEmmiter.main;
 
 			var gradient = new ParticleSystem.MinMaxGradient(
 				new Color(0.25f, 0.25f, 0.25f),
@@ -83,19 +84,24 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 			gradient.mode = ParticleSystemGradientMode.TwoColors;
 
 			ma.startColor = gradient;
+			Renderer.sprite = LockedNode;
 		}
 		else if (solved) {
 			// This level is solved. Color it green on the map.
-			ParticleSystem.MainModule ma = ps.main;
+			ParticleSystem.MainModule ma = ParticleEmmiter.main;
 
 			var gradient = new ParticleSystem.MinMaxGradient(
 				new Color(0.25f, 0.25f, 0.25f),
-				new Color(0, 1, 0)
+				new Color(1, 0.77f, 0.04f)
 			);
 
 			gradient.mode = ParticleSystemGradientMode.TwoColors;
 
 			ma.startColor = gradient;
+			Renderer.sprite = CompletedNode;
+		}
+		else {
+			Renderer.sprite = UnlockedNode;
 		}
 	}
 

@@ -29,6 +29,15 @@ public class PlayerState : MonoBehaviour
     private string JsonSaveFileName;
     private string JsonSaveFileExtension;
 
+    public string LastAttemptedLevel {
+        get {
+            return ActiveSave.LastAttemptedLevel;
+        }
+        set {
+            ActiveSave.LastAttemptedLevel = value;
+        }
+    }
+
     private void Awake() 
     {
         ActiveSave = new Save();
@@ -180,7 +189,9 @@ public class PlayerState : MonoBehaviour
 
             foreach (var command in solution)
             {
-                puzzleData.CachedInstructions.Add(new CachedCommand(command.Instruction, System.Convert.ToInt32(command.Arg)));
+                puzzleData.CachedInstructions.Add(
+                    new CachedCommand(command.Instruction, (int)command.Arg.GetValueOrDefault(), (int)command.Target.GetValueOrDefault())
+                );
             }
         }
 
@@ -234,7 +245,7 @@ public class PlayerState : MonoBehaviour
 
     /**
      * Marks specified puzzle as complete
-     * @param puzzleName name of the puzzle to mark complete
+     * @param puzzleName name of the puzzle to mark completed
      */
     public void MarkPuzzleCompleted(string puzzleName) {
         ActiveSave.PuzzleSaveDictionary[puzzleName].Completed = true;
@@ -286,6 +297,33 @@ public class PlayerState : MonoBehaviour
         return 
             ActiveSave.PuzzleSaveDictionary.ContainsKey(puzzleName) && 
             ActiveSave.PuzzleSaveDictionary[puzzleName].Completed;
+    }
+
+    /**
+     * Allows caller to get a set of instruction that have been awarded
+     * @return HashSet of OpCodes that represent the instructions that have
+     * already been awarded
+     */
+    public HashSet<OpCode> GetAwardedInstructions() {
+        return ActiveSave.AwardedInstructionsHashSet;
+    }
+
+    /**
+     * Allows caller to check if an instruction has been awarded or not
+     * hashset
+     * @param boolean representing if the instruction has been awarded
+     */
+    public bool InstructionAwarded(OpCode instruction) {
+        return ActiveSave.AwardedInstructionsHashSet.Contains(instruction);
+    }
+
+    /**
+     * Allows caller to add an instruction to the awarded instructions
+     * hashset
+     * @param OpCode that represents the instruction to add
+     */
+    public void AddAwardedInstruction(OpCode instruction) {
+        ActiveSave.AwardedInstructionsHashSet.Add(instruction);
     }
 
     /**

@@ -10,12 +10,14 @@ public class LevelDataDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public TMPro.TextMeshProUGUI LevelDescription;
     public TMPro.TextMeshProUGUI StarsNeeded;
     public GameObject PopUpMenu;
+    public StarController StarControl;
 
     // Start is called before the first frame update
     void Start()
     {
         GetComponent<Canvas>().worldCamera = FindObjectOfType<Camera>();
-        LevelDescription.text = LevelData.Description;
+        LevelDescription.text = LevelData.PuzzleName + ":\n" + LevelData.Description;
+
         if (NodeData.Locked) {
             transform.Find("StarRequirement").gameObject.SetActive(true);
             StarsNeeded.text = "x" + NodeData.ScoreRequired;
@@ -23,6 +25,9 @@ public class LevelDataDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExi
         else {
             transform.Find("StarRequirement").gameObject.SetActive(false);
         }
+
+        StarControl.StarAligner(LevelData.HasEfficiency, LevelData.HasInstructionCount, LevelData.HasMemory);
+        StarControl.StarPlacer(LevelData.PuzzleName);
     }
 
     // Update is called once per frame

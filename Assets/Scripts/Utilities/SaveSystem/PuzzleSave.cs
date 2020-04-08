@@ -20,12 +20,12 @@ public class PuzzleSave
 	[SerializeField]
 	public string LevelName;
 
-	/** Field to track whether the level has been visited */
+	/** Field to track whether the level has been completed */
 	[SerializeField]
 	public bool Completed;
 
-	/** Field to store player's solution for the level */
-	[SerializeField]
+    /** Field to store player's solution for the level */
+    [SerializeField]
 	public List<CachedCommand> CachedInstructions;
 
     /** Field to store player's cached cards for the level */

@@ -12,6 +12,8 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 	// Reference the dynamic scroll view that the object is currently in.
 	public InstructionContainer activeDynamicScrollView { get; set; }
 
+	static public DragNDrop CurrDragInstruction { get; private set; }
+
 	// Reference to the first canvas parent of this object
 	protected Canvas UICanvas;
 
@@ -45,7 +47,10 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 		canvasGroup = GetComponent<CanvasGroup>();
 
 		var buttonText = GetComponentInChildren<TextMeshProUGUI>();
-		buttonText.SetText(GetComponent<Command>().Instruction.ToString());
+		if (buttonText) { 
+			buttonText.SetText(GetComponent<Command>().Instruction.ToString());
+		}
+		GetComponent<UIControl>().ElementName = GetComponent<Command>().Instruction.ToString();
 	}
 
 	protected virtual void Awake()
@@ -60,6 +65,7 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 	// Called when beginning to drag object
 	public virtual void OnBeginDrag(PointerEventData eventData)
 	{
+		CurrDragInstruction = this;
 		if(isClonable)
 		{
 			// When dragging the object from its original position, create a clone of the object.
@@ -97,6 +103,7 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 	// Called when ending the dragging of an object
 	public virtual void OnEndDrag(PointerEventData eventData)
 	{
+		CurrDragInstruction = null;
 		canvasGroup.alpha = 1f;
 
 		// raycasts should land on item so it can be dragged again

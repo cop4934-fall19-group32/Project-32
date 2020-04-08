@@ -38,11 +38,28 @@ public class PauseMenu : MonoBehaviour
 
 	public void ExitScene()
 	{
-		GameObject PuzzleGenerator = GameObject.Find("PuzzleGenerator");
-		if (PuzzleGenerator != null) {
-			// Update the active save file.
-			PuzzleGenerator.GetComponent<PuzzleGenerator>().UpdateActiveSave();
+		GameObject pc = GameObject.Find("PuzzleCacher");
+
+		if (pc != null)
+		{
+			var puzzleCacher = pc.GetComponent<PuzzleCacher>();
+
+			if (puzzleCacher == null)
+			{
+				Debug.LogWarning("Gameobject \"PuzzleCacher\" does not have a component \"Puzzle Cacher\" (script).");
+			}
+			else if (!puzzleCacher.CheckIfPuzzleDataExists())
+			{
+				Debug.LogWarning("puzzleCacher.puzzleData is null. Probably because you launched the puzzle scene from the editor and haven't loaded an actual level yet.");
+			}
+			else
+			{
+				// Update the active save file.
+				puzzleCacher.UpdateActiveSave();
+			}
+
 		}
+
 		Time.timeScale = 1;
 		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
 	}

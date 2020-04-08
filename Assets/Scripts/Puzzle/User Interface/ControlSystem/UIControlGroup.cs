@@ -16,7 +16,7 @@ public class UIControlGroup : ControllableUIElement
 		base.Awake();
 
 		ElementGraphic = GetComponent<Image>();
-
+		canvas.sortingLayerName = "UIControlGroup";
 	}
 
 	public override void Focus()
@@ -32,7 +32,7 @@ public class UIControlGroup : ControllableUIElement
 	public override void Unfocus()
 	{
 		GetChildControls();
-		canvas.sortingLayerName = "Default";
+		canvas.sortingLayerName = "UIControlGroup";
 		foreach (var child in GetChildControls())
 		{
 			child.Unfocus();

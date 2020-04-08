@@ -29,27 +29,14 @@ public class MapController : MonoBehaviour
 		}
 	}
 
-    private PlayerState GetPlayerState()
-    {
-        GameObject playerStateObj = GameObject.Find("PlayerState");
-
-        if (!playerStateObj) {
-            var newPlayerState = new GameObject();
-            return newPlayerState.AddComponent<PlayerState>();
-        }
-        else { 
-            return playerStateObj.GetComponent<PlayerState>();
-        }
-
-    }
-
     void FindStartNode()
     {
-        foreach (var node in MapNodes) {
-            var data = node.GetComponent<MapNode>();
-            if (!data.Locked && data.ScoreRequired > StartNode.ScoreRequired)
-                StartNode = data;
+        var GO = GameObject.Find(FindObjectOfType<PlayerState>().LastAttemptedLevel);
+        if (GO == null) {
+            return;
         }
+
+        StartNode = GO.GetComponent<MapNode>();
     }
 
     // Start is called before the first frame update

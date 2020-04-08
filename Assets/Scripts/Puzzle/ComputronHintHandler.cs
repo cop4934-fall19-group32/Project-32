@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ComputronHintHandler : MonoBehaviour
 {
@@ -28,7 +29,6 @@ public class ComputronHintHandler : MonoBehaviour
             throw new System.Exception("Computron Prefab misconfigured. Please link HintHanlder to hint text");
         }
 
-        StartCoroutine(FlickerText());
     }
 
     public void ShowHint() {
@@ -46,7 +46,7 @@ public class ComputronHintHandler : MonoBehaviour
 
     private void OnMouseOver() {
         hovering = true;
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
             ShowHint();
         }
     }
@@ -56,25 +56,7 @@ public class ComputronHintHandler : MonoBehaviour
     }
 
     private void OnEnable() {
-        StartCoroutine(FlickerText());
+
     }
 
-    IEnumerator FlickerText() {
-        while (true) {
-            //Flicker
-            if (gameObject.activeSelf) {
-                HintText.alpha = 0.8f;
-                yield return new WaitForSeconds(0.05f);
-                HintText.alpha = 1f;
-                yield return new WaitForSeconds(0.05f);
-                HintText.alpha = .7f;
-                yield return new WaitForSeconds(0.05f);
-                HintText.alpha = 1f;
-
-                //Delay
-                yield return new WaitForSeconds(Random.Range(0.5f, 5f));
-            }
-            yield return null;
-        }
-    }
 }

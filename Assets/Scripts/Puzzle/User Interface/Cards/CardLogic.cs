@@ -16,7 +16,7 @@ public class CardLogic : MonoBehaviour {
 
     public List<GameObject> BoundInstructions { get; private set; }
 
-    private CardDatastructure datastructure;
+    public CardDatastructure datastructure;
 
     private TMPro.TextMeshProUGUI PanelText;
     private TMPro.TextMeshProUGUI LabelText;
@@ -32,10 +32,9 @@ public class CardLogic : MonoBehaviour {
 
     public bool CardInPlay {
         get {
-            var container = transform.GetComponentInParent<CardContainer>();
-            
-            return
-                container.ContainerType == CardContainerType.PLAY;
+            var container = transform.GetComponentInParent<PlayedCardContainer>();
+
+            return container != null;
         }
     }
 
@@ -122,7 +121,7 @@ public class CardLogic : MonoBehaviour {
         Vector3[] target = new Vector3[4];
         PanelText.rectTransform.GetWorldCorners(target);
         float x = target[2].x - ((target[2].x - target[1].x) / 2);
-        float y = target[1].y + 20;
+        float y = target[1].y + 1;
         float z = target[1].z;
         return new Vector3(x, y, x);
     }

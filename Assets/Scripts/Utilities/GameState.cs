@@ -21,9 +21,9 @@ public class GameState : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void SetPuzzle(PuzzleData data) {
+        SelectedPuzzle = data;
+        data.gameObject.transform.parent = null;
+        DontDestroyOnLoad(data.gameObject);
     }
 }

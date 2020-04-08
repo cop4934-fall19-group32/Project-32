@@ -16,8 +16,11 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 	// Allow draggable buttons to be dropped into the content window during runtime (true for solution window, false for instruction set window)
 	[SerializeField] private bool acceptsNewItems = true;
 
-	// Store a reference to a blank item slot that the button can duplicate.
-	// [SerializeField] private GameObject tempButtonTemplate;
+	public int Count { 
+		get {
+			return contentPanel.transform.childCount; 
+		} 
+	}
 
 	// Store a reference to a new item slot that gets spawned
 	public GameObject temporaryButtonSlot { get; set; }

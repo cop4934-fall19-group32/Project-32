@@ -19,7 +19,11 @@ public class LevelSelectCameraController : MonoBehaviour
     public Vector3 BoomOffset = new Vector3(0, 0, -25.0f);
 
     private Vector3 lastPosition;
-    
+
+    [Header("Min and Max values for panning")]
+    public Vector3 min;
+    public Vector3 max;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,12 +31,32 @@ public class LevelSelectCameraController : MonoBehaviour
     }
 
     void Update() {
- 
+
         if (Input.GetMouseButtonDown(0)) {
             lastPosition = Input.mousePosition;
             StartCoroutine(DragRoutine());
         }
 
+        // scroll wheel up to zoom in
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            GetComponent<Camera>().fieldOfView--;
+        }
+        // scroll wheel down to zoom out
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            GetComponent<Camera>().fieldOfView++;
+        }
+
+        // limit the scrolling to certain min and max values
+        if (GetComponent<Camera>().fieldOfView > 75)
+        {
+            GetComponent<Camera>().fieldOfView = 75;
+        }
+        if (GetComponent<Camera>().fieldOfView < 25)
+        {
+            GetComponent<Camera>().fieldOfView = 25;
+        }
     }
 
     public IEnumerator PanToTarget(GameObject obj) {
@@ -71,6 +95,13 @@ public class LevelSelectCameraController : MonoBehaviour
             delta.z = 0;
             transform.Translate(delta);
             lastPosition = Input.mousePosition;
+
+            // limit panning
+            Vector3 pos = transform.position; // get position as Vector
+            pos.x = Mathf.Clamp(pos.x, min.x, max.x); // clamp position
+            pos.y = Mathf.Clamp(pos.y, min.y, max.y);
+            transform.position = pos; // reassign clamped Vector to position
+
             yield return null;
         }
 

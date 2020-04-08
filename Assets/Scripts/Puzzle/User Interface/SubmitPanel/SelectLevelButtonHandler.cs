@@ -5,12 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class SelectLevelButtonHandler : MonoBehaviour
 {
-    private GameObject PuzzleGenerator;
+    private GameObject PuzzleCacher;
     public void SelectLevel()
     {
-        PuzzleGenerator = GameObject.Find("PuzzleGenerator");
-        PuzzleGenerator.GetComponent<SubmitPanel>().RemoveSubmitPanel();
-        PuzzleGenerator.GetComponent<PuzzleGenerator>().UpdateActiveSave();
+        PuzzleCacher = GameObject.Find("PuzzleCacher");
+        PuzzleCacher.GetComponent<SubmitPanel>().RemoveSubmitPanel();
+        PuzzleCacher.GetComponent<PuzzleCacher>().UpdateActiveSave();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
     }
 }

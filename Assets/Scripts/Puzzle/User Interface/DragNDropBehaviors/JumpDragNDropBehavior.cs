@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(JumpLineDrawer))]
 public class JumpDragNDropBehavior : DragNDrop {
-	public GameObject AnchorPrefab;
-
+	
+	public GameObject JumpTarget;
 	public GameObject childAnchor { get; set; }
 
 	private Command instruction;
@@ -18,7 +19,7 @@ public class JumpDragNDropBehavior : DragNDrop {
 		childAnchor = null;
 		instruction = GetComponent<Command>();
 		jumpLineDrawer = GetComponent<JumpLineDrawer>();
-		jumpLineDrawer.instructionTransform = GetComponent<RectTransform>();
+		jumpLineDrawer.instructionTransform = JumpTarget.GetComponent<RectTransform>();
 		jumpLineDrawer.anchorTransform = null;
 		StartCoroutine(jumpLineDrawer.DrawJumpLine());
 	}
@@ -34,11 +35,23 @@ public class JumpDragNDropBehavior : DragNDrop {
 			return;
 		}
 
-		instruction.Arg = (uint)childAnchor.transform.GetSiblingIndex();
+		instruction.Target = (uint)childAnchor.transform.GetSiblingIndex();
+	}
+
+	public override void OnBeginDrag(PointerEventData eventData) {
+		base.OnBeginDrag(eventData);
+		if (childAnchor != null) {
+			var anchorBehavior = childAnchor.GetComponent<AnchorDragNDropBehavior>();
+			anchorBehavior.HighlightArrow(true);
+		}
 	}
 
 	public override void OnEndDrag(PointerEventData eventData) {
 		base.OnEndDrag(eventData);
+		if (childAnchor != null) {
+			var anchorBehavior = childAnchor.GetComponent<AnchorDragNDropBehavior>();
+			anchorBehavior.HighlightArrow(false);
+		}
 		if (childAnchor == null && dragTargetValid) {
 			SpawnAnchor();
 		}
@@ -46,18 +59,17 @@ public class JumpDragNDropBehavior : DragNDrop {
 
 	public void AttachAnchor(GameObject anchor) {
 		childAnchor = anchor;
-		childAnchor.GetComponent<AnchorDragNDropBehavior>().activeDynamicScrollView = activeDynamicScrollView;
-		GetComponent<JumpLineDrawer>().anchorTransform = childAnchor.GetComponent<RectTransform>();
+		childAnchor.GetComponent<AnchorDragNDropBehavior>().activeDynamicScrollView = 
+			activeDynamicScrollView;
+		jumpLineDrawer.anchorTransform = 
+			childAnchor.GetComponent<AnchorDragNDropBehavior>().JumpTarget.GetComponent<RectTransform>();
 	}
 
 	private void SpawnAnchor() {
 		//Spawn anchor
-		childAnchor = Instantiate(AnchorPrefab, transform.parent);
+		childAnchor = Instantiate(FindObjectOfType<InstructionFactory>().JumpAnchorPrefab, transform.parent);
+		AttachAnchor(childAnchor);
 		childAnchor.transform.SetSiblingIndex(transform.GetSiblingIndex() + 1);
-		childAnchor.GetComponent<AnchorDragNDropBehavior>().activeDynamicScrollView = activeDynamicScrollView;
-		
-		//Configure line drawer and kick off draw coroutine
-		GetComponent<JumpLineDrawer>().anchorTransform = childAnchor.GetComponent<RectTransform>();
 	}
 
 	protected override void HandleInvalidDrop() {

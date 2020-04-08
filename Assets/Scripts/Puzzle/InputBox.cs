@@ -44,7 +44,7 @@ public class InputBox : MonoBehaviour
                 Quaternion.identity);
 
             number.name = "InputNum" + i;
-            number.GetComponentInChildren<TextMesh>().text = inputContents[i].ToString();
+            number.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = inputContents[i].ToString();
         }
     }
 

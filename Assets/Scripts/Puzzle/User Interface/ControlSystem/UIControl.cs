@@ -15,6 +15,7 @@ public class UIControl : ControllableUIElement
 
 		ElementGraphic = GetComponent<Image>();
 		controlButton = GetComponent<Button>();
+		canvas.sortingLayerName = "UIControl";
 	}
 
 	protected void OnDestroy() {
@@ -31,7 +32,7 @@ public class UIControl : ControllableUIElement
 
 	public override void Unfocus()
 	{
-		canvas.sortingLayerName = "Default";
+		canvas.sortingLayerName = "UIControl";
 	}
 
 

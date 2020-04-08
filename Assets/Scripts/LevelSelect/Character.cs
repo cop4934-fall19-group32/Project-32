@@ -35,6 +35,9 @@ public class Character : MonoBehaviour
 	/** Queue of move targets when moving in pathfinding mode */
     private Queue<MapNode> MoveTargetQueue = new Queue<MapNode>();
 
+	/** The Pointer gameobject used to direct players to the next level in sequence */
+	public GameObject NextLevelPointer;
+
 	private Vector3 velocity = Vector3.zero;
 
 	/**
@@ -100,7 +103,7 @@ public class Character : MonoBehaviour
 	 */
 	public void TriggerMove(MoveDirection direction) 
     {
-        if (IsMoving) {
+		if (IsMoving) {
             return;
         }
 
@@ -149,19 +152,22 @@ public class Character : MonoBehaviour
 	 */
     private void SelectLevel() 
     {
-        if (IsMoving || CurrentNode.IsJunction) {
+		if (IsMoving || CurrentNode.IsJunction) {
             return;
         }
+
+		FindObjectOfType<PlayerState>().LastAttemptedLevel = CurrentNode.name;
         PlayerPrefs.SetString("SelectedLevel", CurrentNode.name);
 		PlayerPrefs.SetString("CachedLevelPin", CurrentNode.name);
 
 		var currentPuzzleData = CurrentNode.GetComponentInChildren<PuzzleData>();
-		FindObjectOfType<GameState>().SelectedPuzzle = currentPuzzleData;
+		FindObjectOfType<GameState>().SetPuzzle(currentPuzzleData);
 
 		SceneManager.LoadScene(PuzzleScene.handle);
     }
 
 	IEnumerator Move() {
+		NextLevelPointer.SetActive(false);
 		const float MIN_DIST_SQR = 0.01f;
 		IsMoving = true;
 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5860963723254724874}
   - component: {fileID: 3108464887999664970}
   - component: {fileID: 4900067133575391036}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HintBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +28,7 @@ RectTransform:
   m_GameObject: {fileID: 1479310864447228180}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_Children:
   - {fileID: 4277501966665363083}
   - {fileID: 6354700647259967428}
@@ -37,7 +37,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.916, y: 2.81}
+  m_AnchoredPosition: {x: 0.09, y: 2.17}
   m_SizeDelta: {x: 6.034, y: 3.195}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &5860963723254724874
@@ -58,8 +58,8 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 1468076185
+  m_SortingOrder: 32767
   m_TargetDisplay: 0
 --- !u!222 &3108464887999664970
 CanvasRenderer:
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 4277501966665363083}
   - component: {fileID: 4603383963291327410}
   - component: {fileID: 2790565176287912609}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HintFrame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129,11 +129,11 @@ RectTransform:
   m_Father: {fileID: 7173635590213976466}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 6.434, y: 3.5949998}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4603383963291327410
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -181,7 +181,8 @@ GameObject:
   - component: {fileID: 6354700647259967428}
   - component: {fileID: 3717371054384366349}
   - component: {fileID: 4439795928547450957}
-  m_Layer: 0
+  - component: {fileID: 2787816280279928918}
+  m_Layer: 5
   m_Name: HintText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -326,6 +327,19 @@ MonoBehaviour:
   - {fileID: 0}
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2787816280279928918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4744453783152861053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a993c6809383b54d8ee83f013d50ad9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Text: {fileID: 4439795928547450957}
 --- !u!1 &8492313654583376881
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,6 +537,7 @@ MonoBehaviour:
   InstructionDelay: 0.1
   InputBox: {fileID: 0}
   OutputBox: {fileID: 0}
+  stepping: 0
 --- !u!114 &4309709055876064738
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -50,8 +50,6 @@ public abstract class ControllableUIElement : MonoBehaviour
 			throw new System.Exception("ControllableUIElement Requires Canvas component for sorting");
 		}
 		canvas.overrideSorting = true;
-		canvas.sortingLayerName = "Default";
-		CalculateSortingOrder();
 
 		raycaster = GetComponent<GraphicRaycaster>();
 		if (raycaster == null)

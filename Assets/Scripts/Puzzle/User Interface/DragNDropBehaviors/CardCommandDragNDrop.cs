@@ -5,14 +5,15 @@ using UnityEngine.EventSystems;
 using TMPro;
 
 public class CardCommandDragNDrop : DragNDrop {
+    public GameObject ArgLabel;
     public TextMeshProUGUI ArgumentText;
     private UIController Controller;
     public GameObject BoundCard { get; private set; }
 
     protected override void Awake() {
         base.Awake();
+        ArgLabel.SetActive(false);
         Controller = FindObjectOfType<UIController>();
-        GetComponent<UIControl>().ElementName = GetComponent<Command>().Instruction.ToString();
     }
 
     protected void Start() {
@@ -26,6 +27,7 @@ public class CardCommandDragNDrop : DragNDrop {
         if (dragTargetValid && BoundCard == null) {
             var linker = gameObject.AddComponent<CardInstructionLinker>();
             linker.Instruction = gameObject;
+            ArgLabel.SetActive(true);
         }
 
     }
@@ -45,6 +47,7 @@ public class CardCommandDragNDrop : DragNDrop {
     }
 
     public void BindCard(GameObject go) {
+        ArgLabel.SetActive(true);
         if (BoundCard != null) {
             BoundCard.GetComponent<CardLogic>().UnlinkInstruction(gameObject);
         }

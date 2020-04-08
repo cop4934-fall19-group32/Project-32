@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1936473558639493929}
   - component: {fileID: 1936473558639493928}
   - component: {fileID: 1936473558639493927}
+  - component: {fileID: 8305594626729567795}
   m_Layer: 5
   m_Name: Delete Button
   m_TagString: Untagged
@@ -128,6 +129,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8305594626729567795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936473558639493925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29a0161192c19a5498f3bcbef0844491, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Handler: {fileID: 5805246888620960635}
 --- !u!1 &1936473559098948820
 GameObject:
   m_ObjectHideFlags: 0
@@ -162,8 +176,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -76.49}
+  m_SizeDelta: {x: 0, y: -152.98}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1936473559098948823
 CanvasRenderer:
@@ -255,6 +269,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a1dcec2cdae12d4bb56b050d4d9926c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  EmptySlotGraphic: {fileID: 21300000, guid: ca22c9ea444fd9840b812ea0ee625d24, type: 3}
+  UsedSlotGraphic: {fileID: 21300000, guid: 9339d7de9d26d3a4cba840272b346f8f, type: 3}
+  DeleteSlotGraphic: {fileID: 21300000, guid: 08f7a829618946f4e960f160de807b26, type: 3}
+  DeleteButton: {fileID: 1936473558639493925}
+  SlotImage: {fileID: 1936473560049792937}
+  SaveSelectMenu: {fileID: 0}
+  ConfirmationPanel: {fileID: 0}
 --- !u!1 &1936473560049792934
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,13 +336,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.74509805, g: 0.6, b: 0.39215687, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: ca22c9ea444fd9840b812ea0ee625d24, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
