@@ -8,21 +8,49 @@ public class OutputBox : MonoBehaviour
     public List<int> outputContents;
     public List<int> outputExpected;
     public GameObject DataCube;
-    public AudioSource outputSound;
+    public GameObject[] OutputSlots = new GameObject[OutputBoxSize];
+    public GameObject[] DataCubes = new GameObject[OutputBoxSize];
+    private AudioCue OutputAudio;
+    private AudioCue CorrectAudio;
+    public AudioCue IncorrectAudio;
+    public GameObject Actor;
+    public GameObject PuzzleCacher;
+
     public void InitializeOutput(List<int> output)
     {
         outputContents = new List<int>();
         outputExpected = output;
+        InitializeAudioCues();
+    }
+
+    private void InitializeAudioCues()
+    {
+        AudioCue[] audioCues = GetComponents<AudioCue>();
+        foreach (AudioCue audioCue in audioCues)
+        {
+            if (audioCue.Name == "Output Audio")
+            {
+                OutputAudio = audioCue;
+            }
+            else if (audioCue.Name == "Correct Solution Audio")
+            {
+                CorrectAudio = audioCue;
+            }
+            else if (audioCue.Name == "Incorrect Solution Audio")
+            {
+                IncorrectAudio = audioCue;
+            }
+        }
     }
 
     public void ResetOutput()
     {
         for (int i = 0; i < OutputBoxSize; i++)
         {
-            GameObject OutputDataCube = GameObject.Find("OutputNum" + i);
-            if (OutputDataCube != null)
+            if (DataCubes[i] != null)
             {
-                Destroy(OutputDataCube.gameObject);
+                Destroy(DataCubes[i].gameObject);
+                DataCubes[i] = null;
             }
         }
         outputContents = new List<int>();
@@ -31,46 +59,63 @@ public class OutputBox : MonoBehaviour
     public bool GradeOutput()
     {
         if (outputContents.Count != outputExpected.Count)
-        {
             return false;
-        }
 
         for (int i = 0; i < outputContents.Count; i++)
-        {
             if (outputContents[i] != outputExpected[i])
-            {
                 return false;
-            }
-        }
 
         // Display Award Panel.
-        GameObject PuzzleCacherObj = GameObject.Find("PuzzleCacher");
-        PuzzleCacher PuzzleCacher = PuzzleCacherObj.GetComponent<PuzzleCacher>();
-        PuzzleCacher.ShowAwardPanel();
+        CorrectAudio.Play();
+        PuzzleCacher.GetComponent<PuzzleCacher>().ShowAwardPanel();
         return true;
     }
 
-    void UpdateOutputBox()
+    public IEnumerator MoveDataCube(GameObject dataCube, Vector3 destination, float seconds)
     {
-        int numDataCubes;
+        float elapsedTime = 0f;
+        Vector3 start = dataCube.transform.position;
 
-        if (outputContents.Count < OutputBoxSize)
+        while (elapsedTime < seconds)
         {
-            numDataCubes = outputContents.Count;
-        }
-        else
-        {
-            numDataCubes = OutputBoxSize - 1;
-            GameObject OutputDataCube = GameObject.Find("OutputNum" + (OutputBoxSize - 1));
-            Destroy(OutputDataCube.gameObject);
+            dataCube.transform.position = Vector3.Lerp(start, destination, elapsedTime / seconds);
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
         }
 
-        for (int i = 0; i < numDataCubes; i++)
+        dataCube.transform.position = destination;
+    }
+
+    private void MoveDataCubes()
+    {
+        for (int i = OutputBoxSize - 1; i > 0; i--)
         {
-            GameObject CurrentNumObject = GameObject.Find("OutputNum" + i);
-            CurrentNumObject.transform.position = GameObject.Find("OutputSlot" + (i + 1)).transform.position;
-            CurrentNumObject.name = "OutputNum" + (i + 1);
+            if (DataCubes[i - 1] == null)
+            {
+                continue;
+            }
+
+            DataCubes[i] = DataCubes[i - 1];
+            StartCoroutine(MoveDataCube(DataCubes[i], OutputSlots[i].transform.position,
+                Actor.GetComponent<Actor>().InstructionDelay));
         }
+    }
+
+    private void UpdateOutputBox(int numData)
+    {
+        GameObject bottomDataCube = DataCubes[OutputBoxSize - 1];
+
+        MoveDataCubes();
+
+        DataCubes[0] = (GameObject)Instantiate(DataCube,
+            OutputSlots[0].transform.position,
+            Quaternion.identity);
+
+        DataCubes[0].GetComponentInChildren<TMPro.TextMeshProUGUI>().text = numData.ToString();
+
+        // Remove bottom data cube if another data cubed was moved in its place.
+        if (bottomDataCube != null)
+            Destroy(bottomDataCube.gameObject);
     }
 
     // This function takes in data from Computron, moves it into the correct position in 
@@ -87,22 +132,9 @@ public class OutputBox : MonoBehaviour
         if (numData != outputExpected[outputContents.Count])
             return false;
 
-        outputSound.Play();
-
-        UpdateOutputBox();
         outputContents.Add((int)numData);
-
-        GameObject targetSlot = GameObject.Find("OutputSlot0");
-
-        // Instantiate the correct data item and place it in the next open outbox slot.
-        GameObject number = Instantiate(
-            DataCube,
-            targetSlot.transform.position,
-            Quaternion.identity
-        );
-
-        number.name = "OutputNum0";
-        number.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = numData.ToString();
+        UpdateOutputBox((int)numData);
+        OutputAudio.Play();
         return true;
     }
 }

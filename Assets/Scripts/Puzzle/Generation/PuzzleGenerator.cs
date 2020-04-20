@@ -58,7 +58,7 @@ public class PuzzleGenerator : MonoBehaviour
 
     public void SetupBoard() {
         // Fill the puzzle scene with the puzzle data.
-        UICanvas.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = puzzleData.Description;
+        GameObject.FindGameObjectWithTag("PuzzlePrompt").GetComponent<TMPro.TextMeshProUGUI>().text = puzzleData.Description;
         GetComponent<CardGenerator>().GenerateHand(puzzleData);
         InputBox.GetComponent<InputBox>().InitializeInput(puzzleData.InputStream);
         OutputBox.GetComponent<OutputBox>().InitializeOutput(puzzleData.OutputStream);
@@ -118,17 +118,21 @@ public class PuzzleGenerator : MonoBehaviour
         }
 
         //Iterate over instructions to reconnect jump lines
-        foreach (Transform child in instructionContainer)
-        {
+        foreach (Transform child in instructionContainer) {
             var instruction = child.GetComponent<Command>();
             if (
                 instruction.Instruction == OpCode.JUMP ||
-                instruction.Instruction == OpCode.JUMP_IF_NULL ||
-                instruction.Instruction == OpCode.JUMP_IF_GREATER ||
-                instruction.Instruction == OpCode.JUMP_IF_LESS
-            )
-            {
+                instruction.Instruction == OpCode.JUMP_IF_NULL
+            ) {
                 var dragNDropBehavior = child.GetComponent<JumpDragNDropBehavior>();
+                dragNDropBehavior.AttachAnchor(instructionContainer.GetChild((int)instruction.Target).gameObject);
+            }
+            else if (
+                instruction.Instruction == OpCode.JUMP_IF_GREATER ||
+                instruction.Instruction == OpCode.JUMP_IF_LESS ||
+                instruction.Instruction == OpCode.JUMP_IF_EQUAL
+            ) {
+                var dragNDropBehavior = child.GetComponent<CardJumpCommand>();
                 dragNDropBehavior.AttachAnchor(instructionContainer.GetChild((int)instruction.Target).gameObject);
             }
         }
@@ -136,6 +140,10 @@ public class PuzzleGenerator : MonoBehaviour
 
     private void LoadCachedCards(List<CachedCard> CachedCards)
     {
+        if (CardHandPanel == null) {
+            return;
+        }
+
         var hand = CardHandPanel.GetComponent<CachedCardContainer>();
         var spawnedCards = hand.GetCards();
 
@@ -171,6 +179,8 @@ public class PuzzleGenerator : MonoBehaviour
             filteredInstructions.Add(OpCode.JUMP_IF_LESS);
         if (puzzleData.JumpIfGreater)
             filteredInstructions.Add(OpCode.JUMP_IF_GREATER);
+        if (puzzleData.JumpIfEqual)
+            filteredInstructions.Add(OpCode.JUMP_IF_EQUAL);
         if (puzzleData.MoveTo)
             filteredInstructions.Add(OpCode.MOVE_TO);
         if (puzzleData.CopyTo)
@@ -206,7 +216,9 @@ public class PuzzleGenerator : MonoBehaviour
     {
         InputBox.GetComponent<InputBox>().ResetInput(puzzleData.InputStream);
         OutputBox.GetComponent<OutputBox>().ResetOutput();
-        CardPlayedPanel.GetComponent<CardContainer>().ResetCards();
+        if (CardPlayedPanel != null) { 
+            CardPlayedPanel.GetComponent<CardContainer>().ResetCards();
+        }
     }
 
     IEnumerator TutorializationRoutine()

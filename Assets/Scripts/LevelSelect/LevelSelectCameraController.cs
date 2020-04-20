@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class LevelSelectCameraController : MonoBehaviour
 {
+    [Header("Character reference")]
+    public GameObject character;
+
     [Header("Movement Settings")]
     /** Sensitivity of Camera drag controls */
     public float MouseSensitivity = 1.0f;
@@ -37,15 +40,21 @@ public class LevelSelectCameraController : MonoBehaviour
             StartCoroutine(DragRoutine());
         }
 
+        if (Input.GetMouseButtonDown(1))
+        {
+            var pos = character.transform.position + BoomOffset;
+            transform.position = pos;
+        }
+
         // scroll wheel up to zoom in
         if (Input.GetAxis("Mouse ScrollWheel") > 0)
         {
-            GetComponent<Camera>().fieldOfView--;
+            GetComponent<Camera>().fieldOfView -= 3;
         }
         // scroll wheel down to zoom out
         else if (Input.GetAxis("Mouse ScrollWheel") < 0)
         {
-            GetComponent<Camera>().fieldOfView++;
+            GetComponent<Camera>().fieldOfView += 3;
         }
 
         // limit the scrolling to certain min and max values
@@ -92,6 +101,7 @@ public class LevelSelectCameraController : MonoBehaviour
     IEnumerator DragRoutine() {
         while (Input.GetMouseButton(0)) {
             var delta = (lastPosition - Input.mousePosition) * MouseSensitivity * Time.deltaTime;
+            delta *= GetComponent<Camera>().fieldOfView / 50;
             delta.z = 0;
             transform.Translate(delta);
             lastPosition = Input.mousePosition;

@@ -17,7 +17,7 @@ public class CardCommandDragNDrop : DragNDrop {
     }
 
     protected void Start() {
-        StartCoroutine(WaitForCards());
+
     }
 
     public override void OnEndDrag(PointerEventData eventData) {

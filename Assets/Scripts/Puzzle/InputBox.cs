@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class InputBox : MonoBehaviour
 {
+    public int Count { get { return inputContents.Count - NumRemoved; } }
     public const int InputBoxSize = 5;
+    private int NumRemoved;
     public ArrayList inputContents;
     public GameObject DataCube;
-    public AudioSource inputSound;
+    public GameObject[] InputSlots = new GameObject[InputBoxSize];
+    public GameObject[] DataCubes = new GameObject[InputBoxSize];
+    public GameObject Actor;
 
     public void ResetInput(int[] InputStream)
     {
@@ -20,16 +24,17 @@ public class InputBox : MonoBehaviour
         inputContents = new ArrayList();
         inputContents.AddRange(InputStream);
         PopulateInputBox();
+        NumRemoved = 0;
     }
 
     void ClearInputBox()
     {
         for (int i = 0; i < InputBoxSize; i++)
         {
-            GameObject InputDataCube = GameObject.Find("InputNum" + i);
-            if (InputDataCube != null)
+            if (DataCubes[i] != null)
             {
-                Destroy(InputDataCube.gameObject);
+                Destroy(DataCubes[i].gameObject);
+                DataCubes[i] = null;
             }
         }
     }
@@ -39,12 +44,11 @@ public class InputBox : MonoBehaviour
         int numDataCubes = (inputContents.Count < InputBoxSize) ? inputContents.Count : InputBoxSize;
         for (int i = 0; i < numDataCubes; i++)
         {
-            GameObject number = (GameObject)Instantiate(DataCube,
-                GameObject.Find("InputSlot" + i).transform.position,
+            DataCubes[i] = (GameObject)Instantiate(DataCube,
+                InputSlots[i].transform.position,
                 Quaternion.identity);
 
-            number.name = "InputNum" + i;
-            number.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = inputContents[i].ToString();
+            DataCubes[i].GetComponentInChildren<TMPro.TextMeshProUGUI>().text = inputContents[i].ToString();
         }
     }
 
@@ -53,23 +57,67 @@ public class InputBox : MonoBehaviour
     // the numerical data associated with the removed item.
     public int? Input()
     {
-        if (inputContents.Count == 0)
+        if (NumRemoved >= inputContents.Count)
             return null;
 
+        GetComponent<AudioCue>().Play();
 
-        inputSound.Play();
-
-        // Get the item from the top of the input box.
-        GameObject NumObject = GameObject.Find("InputNum0");
+        GameObject toRemove = DataCubes[0];
 
         // Get the data the item represents and remove it from inputContents.
-        int numData = (int)inputContents[0];
-        inputContents.RemoveAt(0);
-        Destroy(NumObject.gameObject);
+        int numData = (int)inputContents[NumRemoved];
+        NumRemoved++;
+        Destroy(toRemove.gameObject);
 
-        ClearInputBox();
-        PopulateInputBox();
+        // Slide the data cubes up.
+        int numSlides = 0;
+        for (int i = 0; i < InputBoxSize - 1; i++)
+        {
+            if (i + NumRemoved >= inputContents.Count)
+            {
+                break;
+            }
+
+            DataCubes[i] = DataCubes[i + 1];
+            StartCoroutine(MoveDataCube(DataCubes[i], InputSlots[i].transform.position,
+                Actor.GetComponent<Actor>().InstructionDelay));
+            numSlides++;
+        }
+
+        // If there is still input, instantiate a new data cube in at the last input box slot.
+        if (NumRemoved + (InputBoxSize - 1) < inputContents.Count)
+        {
+            DataCubes[InputBoxSize - 1] = (GameObject)Instantiate(DataCube,
+                InputSlots[InputBoxSize - 1].transform.position,
+                Quaternion.identity);
+
+            DataCubes[InputBoxSize - 1].GetComponentInChildren<TMPro.TextMeshProUGUI>().text =
+                inputContents[NumRemoved + InputBoxSize - 1].ToString();
+        }
+        else
+        {
+            // Set the rest of the data cube array to null.
+            for (int i = numSlides; i < InputBoxSize; i++)
+            {
+                DataCubes[i] = null;
+            }
+        }
 
         return numData;
+    }
+
+    public IEnumerator MoveDataCube(GameObject dataCube, Vector3 destination, float seconds)
+    {
+        float elapsedTime = 0f;
+        Vector3 start = dataCube.transform.position;
+
+        while (elapsedTime < seconds)
+        {
+            dataCube.transform.position = Vector3.Lerp(start, destination, elapsedTime / seconds);
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        dataCube.transform.position = destination;
     }
 }

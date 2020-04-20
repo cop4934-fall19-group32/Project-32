@@ -21,7 +21,6 @@ public class Actor : MonoBehaviour
     // components that Actor needs to interface with
     private Interpreter commandStream;
     private CardContainer cardContainer;
-
     public GameObject InputBox;
     public GameObject OutputBox;
 
@@ -29,7 +28,18 @@ public class Actor : MonoBehaviour
     private Nullable<int> CurrentValue;
     private Nullable<int> SecondValue;
     private Nullable<uint> CurrentArg;
-    private TextMesh Display;
+
+    [Header("Display Settings")]
+    [SerializeField]
+    private GameObject DataCube;
+    [SerializeField]
+    private TMPro.TextMeshProUGUI DataCubeText;
+    
+    [SerializeField]
+    private GameObject Display;
+    [SerializeField]
+    private TMPro.TextMeshProUGUI DisplayText;
+
 
     // variables for handling instructions
     private Command current;
@@ -41,8 +51,10 @@ public class Actor : MonoBehaviour
 
     // used when Computron is stepping through solutions
     public Boolean stepping;    // currently stepping
-    public Boolean step;        // step used at all 
+    public Boolean step;        // was step used at all 
     private GameObject StepButton;
+    public Boolean implicitSubmit;
+    public int stepCount;
 
     // used to handle coroutines
     private ACTOR_STATE currentState;
@@ -66,10 +78,6 @@ public class Actor : MonoBehaviour
         OutputBox = this.transform.parent.Find("Output").gameObject;
         StepButton = GameObject.FindWithTag("Step");
 
-        // initialize display
-        Display = GetComponentsInChildren<TextMesh>()[0];
-        Display.text = "";
-
         // initialize starting parameters
         transform.position = RestWaypoint.transform.position;
         current = null;
@@ -83,6 +91,9 @@ public class Actor : MonoBehaviour
         SecondValue = null;
         stepping = false;
         step = false;
+        implicitSubmit = false;
+        stepCount = 0;
+
         StartCoroutine(ActorStateMachine());
     }
 
@@ -101,18 +112,8 @@ public class Actor : MonoBehaviour
     {
         while (currentState == ACTOR_STATE.IDLE) 
         {
-            // idle "animation"
-            Display.text += ".";
-            if (Display.text.Length > 3) 
-            {
-                Display.text = "";
-            }
-
             yield return new WaitForSeconds(0.25f);
         }
-
-        // reset text displayed to empty string when exiting the IDLE state
-        Display.text = "";
     }
 
     // controls movement between waypoints
@@ -125,13 +126,14 @@ public class Actor : MonoBehaviour
             var targetPosition = FindTargetWaypoint();
             var translationVector = targetPosition - currentPosition;
 
-            UpdatePosition(currentPosition, targetPosition);
-
             // stop within a certain distance and move to processing state
-            if (translationVector.sqrMagnitude < 0.5)
-            {
+            if (translationVector.sqrMagnitude < 0.5) {
                 currentState = ACTOR_STATE.PROCESSING;
             }
+            else { 
+                UpdatePosition(currentPosition, targetPosition);
+            }
+
 
             yield return null;
         }
@@ -146,8 +148,12 @@ public class Actor : MonoBehaviour
             FetchCommand();
 
             // need to ensure current position is accurate
-            currentState = ACTOR_STATE.MOVING;
-            yield return StartCoroutine(currentState.ToString());
+            if (!(current.Instruction == OpCode.JUMP) && !(current.Instruction == OpCode.JUMP_IF_NULL) && 
+                !(current.Instruction == OpCode.NO_OP) && !(current.Instruction == OpCode.SUBMIT))
+            {
+                currentState = ACTOR_STATE.MOVING;
+                yield return StartCoroutine(currentState.ToString());
+            }
 
             if (current == null) {
                 Debug.Log("Processing aborted");
@@ -173,11 +179,38 @@ public class Actor : MonoBehaviour
         // if the player is stepping through a solution, we need to hold here
         while (stepping)
         {
+            stepCount++;
+
+            // if we have a Jump or Conditional Jump command, we need to adjust the stepCount accordingly
+            if (current.Instruction == OpCode.JUMP || conditionalResult == true)
+            {
+                // update stepCount
+                stepCount = (int)current.Target;
+
+                // if this puts us on the second to last command, we need to implicitly submit the solution
+                if (stepCount+1 == commandStream.GetInstructionCount())
+                {
+                    implicitSubmit = true;
+                }
+                // otherwise, assert false
+                else
+                {
+                    implicitSubmit = false;
+                }
+            }
+
+            // moves to the SUBMIT command without requiring the player to click step again
+            if (implicitSubmit)
+            {
+                BeginProcessing();
+            }
+
+            // wait for the player to click step again
             stepping = false;
             StepButton.GetComponent<UIControl>().Enable();
             while (currentState == ACTOR_STATE.REPORTING)
             {
-                yield return new WaitForSeconds(0.25f);
+                yield return null;
             }
             break;
         }
@@ -192,8 +225,7 @@ public class Actor : MonoBehaviour
         // if the simulation is complete
         while (current.Instruction == OpCode.SUBMIT)
         {
-            Display.text = "CONGRATULATIONS!";
-            yield return new WaitForSeconds(1);
+            yield return null;
         }
         // else, continue processing
         currentState = ACTOR_STATE.PROCESSING;
@@ -204,48 +236,46 @@ public class Actor : MonoBehaviour
     {
         // depending on what the current OpCode is will dictate what message should be displayed
         // all error codes are self explanatory
+        OutputBox.GetComponent<OutputBox>().IncorrectAudio.Play();
 
         if (current.Instruction == OpCode.OUTPUT)
         {
             if (CurrentValue == null)
             {
-                Display.text = "CANNOT PUT NULL INTO OUTPUT.";
+                DisplayMessage("CANNOT PUT NULL INTO OUTPUT.");
                 yield return new WaitForSeconds(1);
             }
             else
             {
-                Display.text = "INCORRECT DATA IN OUTPUT.";
+                DisplayMessage("INCORRECT DATA IN OUTPUT.");
                 yield return new WaitForSeconds(1);
             }
         }
         
         if (current.Instruction == OpCode.MOVE_TO || current.Instruction == OpCode.COPY_TO)
         {
-            Display.text = "CANNOT STORE A NULL VALUE.";
+            DisplayMessage("CANNOT STORE A NULL VALUE.");
             yield return new WaitForSeconds(1);
         }
-        
-        if (current.Instruction == OpCode.JUMP_IF_LESS || current.Instruction == OpCode.JUMP_IF_GREATER)
+        else if (current.Instruction == OpCode.JUMP_IF_LESS || current.Instruction == OpCode.JUMP_IF_GREATER ||
+            current.Instruction == OpCode.JUMP_IF_EQUAL)
         {
-            Display.text = "CANNOT COMPARE NULL.";
+            DisplayMessage("CANNOT COMPARE NULL.");
             yield return new WaitForSeconds(1);
         }
-
-        if (current.Instruction == OpCode.ADD)
+        else if (current.Instruction == OpCode.ADD)
         {
-            Display.text = "CANNOT ADD NULL.";
+            DisplayMessage("CANNOT ADD NULL.");
             yield return new WaitForSeconds(1);
         }
-
-        if (current.Instruction == OpCode.SUBTRACT)
+        else if (current.Instruction == OpCode.SUBTRACT)
         {
-            Display.text = "CANNOT SUBTRACT NULL.";
+            DisplayMessage("CANNOT SUBTRACT NULL.");
             yield return new WaitForSeconds(1);
         }
-
-        if (current.Instruction == OpCode.SUBMIT)
+        else if (current.Instruction == OpCode.SUBMIT)
         {
-            Display.text = "OUTPUT IS INCORRECT.";
+            DisplayMessage("OUTPUT IS INCORRECT.");
             yield return new WaitForSeconds(1);
         }
 
@@ -253,23 +283,25 @@ public class Actor : MonoBehaviour
         // hold in the halted state until the player halts the simulation (calls AbortExecution)
         while (currentState == ACTOR_STATE.HALTED)
         {
-            yield return new WaitForSeconds(InstructionDelay);
+            yield return new WaitForSeconds(0.25f);
         }
     }
 
     // final instruction of every solution
     IEnumerator SUBMIT()
     {
-        Display.text = "PROCESSING COMPLETE.";
-        yield return new WaitForSeconds(1);
-        
+        DisplayMessage(".");
+        yield return new WaitForSeconds(0.5f);
+        DisplayMessage("..");
+        yield return new WaitForSeconds(0.5f);
+        DisplayMessage("...");
+        yield return new WaitForSeconds(InstructionDelay);
+        HideTextBox();
         // check the solution
-        Boolean res = OutputBox.GetComponent<OutputBox>().GradeOutput();
-        if (!res)
-        {
+        bool res = OutputBox.GetComponent<OutputBox>().GradeOutput();
+        if (!res) {
             error = true;
         }
-
         currentState = ACTOR_STATE.REPORTING;
     }
 
@@ -284,11 +316,7 @@ public class Actor : MonoBehaviour
 
         // Computron picks up the top item from Input
         CurrentValue = InputBox.GetComponent<InputBox>().Input();
-        Display.text = CurrentValue.ToString();
-        if (CurrentValue == null)
-        {
-            Display.text = "NULL";
-        }
+        ShowDataCube(CurrentValue);
 
         currentState = ACTOR_STATE.REPORTING;
     }
@@ -313,8 +341,8 @@ public class Actor : MonoBehaviour
         }
 
         // current value is correct
+        HideDataCube();
         CurrentValue = null;
-        Display.text = "";
         yield return new WaitForSeconds(InstructionDelay);
         currentState = ACTOR_STATE.REPORTING;
     }
@@ -334,15 +362,18 @@ public class Actor : MonoBehaviour
         currentState = ACTOR_STATE.REPORTING;
     }
 
-    // if current value is less than value at destination, jump; else, continue sequential execution
-    IEnumerator JUMP_IF_LESS()
+    // if current value is equal to value at destination, jump; else, continue sequential execution
+    IEnumerator JUMP_IF_EQUAL()
     {
         // grab card reference
         CurrentArg = current.Arg;
         CardLogic card = cardContainer.GetCard((int)CurrentArg);
 
+        // Computron gets a copy of the top item from the specified Card
+        SecondValue = card.CopyFrom();
+
         // ensure neither value is null
-        if (CurrentValue == null || card.datastructure.Peek() == null)
+        if (CurrentValue == null || SecondValue == null)
         {
             error = true;
             currentState = ACTOR_STATE.REPORTING;
@@ -350,7 +381,62 @@ public class Actor : MonoBehaviour
         }
 
         yield return new WaitForSeconds(InstructionDelay);
-        conditionalResult = (CurrentValue < card.datastructure.Peek());
+
+        conditionalResult = (CurrentValue == SecondValue);
+
+        // show the two values being added together
+        DisplayMessage(CurrentValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " == ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + SecondValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " ?");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(conditionalResult.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        ShowDataCube(CurrentValue);
+        HideTextBox();
+
+        currentState = ACTOR_STATE.REPORTING;
+    }
+
+    // if current value is less than value at destination, jump; else, continue sequential execution
+    IEnumerator JUMP_IF_LESS()
+    {
+        // grab card reference
+        CurrentArg = current.Arg;
+        CardLogic card = cardContainer.GetCard((int)CurrentArg);
+
+        // Computron gets a copy of the top item from the specified Card
+        SecondValue = card.CopyFrom();
+
+        // ensure neither value is null
+        if (CurrentValue == null || SecondValue == null)
+        {
+            error = true;
+            currentState = ACTOR_STATE.REPORTING;
+            yield return StartCoroutine(currentState.ToString());
+        }
+
+        yield return new WaitForSeconds(InstructionDelay);
+
+        conditionalResult = (CurrentValue < SecondValue);
+
+        // show the two values being compared
+        DisplayMessage(CurrentValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " < ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + SecondValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " ?");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(conditionalResult.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        ShowDataCube(CurrentValue);
+        HideTextBox();
+
         currentState = ACTOR_STATE.REPORTING;
     }
 
@@ -361,8 +447,11 @@ public class Actor : MonoBehaviour
         CurrentArg = current.Arg;
         CardLogic card = cardContainer.GetCard((int)CurrentArg);
 
+        // Computron gets a copy of the top item from the specified Card
+        SecondValue = card.CopyFrom();
+
         // ensure neither value is null
-        if (CurrentValue == null || card.datastructure.Peek() == null)
+        if (CurrentValue == null || SecondValue == null)
         {
             error = true;
             currentState = ACTOR_STATE.REPORTING;
@@ -370,7 +459,22 @@ public class Actor : MonoBehaviour
         }
 
         yield return new WaitForSeconds(InstructionDelay);
-        conditionalResult = (CurrentValue > card.datastructure.Peek());
+
+        conditionalResult = (CurrentValue > SecondValue);
+
+        // show the two values being compared
+        DisplayMessage(CurrentValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " > ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + SecondValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " ?");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(conditionalResult.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        ShowDataCube(CurrentValue);
+        HideTextBox();
         currentState = ACTOR_STATE.REPORTING;
     }
 
@@ -387,6 +491,7 @@ public class Actor : MonoBehaviour
         // grab card reference
         CurrentArg = current.Arg;
         CardLogic card = cardContainer.GetCard((int)CurrentArg);
+        HideDataCube();
 
         // trying to store null causes a runtime error
         if (CurrentValue == null)
@@ -400,7 +505,6 @@ public class Actor : MonoBehaviour
             // put down the value held, and hands are now empty
             card.MoveTo((int)CurrentValue);
             CurrentValue = null;
-            Display.text = "NULL";
             yield return new WaitForSeconds(InstructionDelay);
         }
 
@@ -422,15 +526,7 @@ public class Actor : MonoBehaviour
 
         // Computron picks up the top item from the specified Card
         CurrentValue = card.MoveFrom();
-        if (CurrentValue != null)
-        {
-            Display.text = CurrentValue.ToString();
-        }
-        else
-        {
-            // if the Card is empty, pick up NULL
-            Display.text = "NULL";
-        }
+        ShowDataCube(CurrentValue);
 
         currentState = ACTOR_STATE.REPORTING;
     }
@@ -475,16 +571,8 @@ public class Actor : MonoBehaviour
         }
 
         // Computron gets a copy of the top item from the specified Card
-        CurrentValue = card.CopyFrom();
-        if (CurrentValue != null)
-        {
-            Display.text = CurrentValue.ToString();
-        }
-        else
-        {
-            // if the Card is empty, pick up NULL
-            Display.text = "NULL";
-        }
+        CurrentValue = (int)card.CopyFrom();
+        ShowDataCube(CurrentValue);
 
         currentState = ACTOR_STATE.REPORTING;
     }
@@ -508,14 +596,19 @@ public class Actor : MonoBehaviour
         }
 
         // show the two values being added together
-        Display.text += " + ";
+        DisplayMessage(CurrentValue.ToString());
         yield return new WaitForSeconds(InstructionDelay);
-        Display.text += SecondValue.ToString();
+        DisplayMessage(DisplayText.text + " + ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + SecondValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " = ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " ? ");
         yield return new WaitForSeconds(InstructionDelay);
         CurrentValue += SecondValue;
-        SecondValue = null;
-        Display.text = CurrentValue.ToString();
-        yield return new WaitForSeconds(InstructionDelay);
+        ShowDataCube(CurrentValue);
+        HideTextBox();
 
         currentState = ACTOR_STATE.REPORTING;
     }
@@ -539,14 +632,19 @@ public class Actor : MonoBehaviour
         }
 
         // show the two values being subtracted
-        Display.text += " - ";
+        DisplayMessage(CurrentValue.ToString());
         yield return new WaitForSeconds(InstructionDelay);
-        Display.text += SecondValue.ToString();
+        DisplayMessage(DisplayText.text + " - ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + SecondValue.ToString());
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " = ");
+        yield return new WaitForSeconds(InstructionDelay);
+        DisplayMessage(DisplayText.text + " ? ");
         yield return new WaitForSeconds(InstructionDelay);
         CurrentValue -= SecondValue;
-        SecondValue = null;
-        Display.text = CurrentValue.ToString();
-        yield return new WaitForSeconds(InstructionDelay);
+        ShowDataCube(CurrentValue);
+        HideTextBox();
 
         currentState = ACTOR_STATE.REPORTING;
     }
@@ -572,12 +670,18 @@ public class Actor : MonoBehaviour
         SecondValue = null;
         conditionalResult = null;
         error = false;
+        implicitSubmit = false;
+        stepCount = 0;
+
+        MoveSpeed = 0.3f;
+        InstructionDelay = 0.3f;
 
         // halt all processes and start a new instance of the state machine
         StopAllCoroutines();
         currentState = ACTOR_STATE.IDLE;
+        HideTextBox();
+        HideDataCube();
         StartCoroutine(ActorStateMachine());
-        Display.text = "";
     }
 
     // will only be accessed if the Actor is ready for the next command
@@ -615,7 +719,9 @@ public class Actor : MonoBehaviour
         }
         else if (current.Instruction == OpCode.MOVE_TO || current.Instruction == OpCode.MOVE_FROM ||
                  current.Instruction == OpCode.COPY_TO || current.Instruction == OpCode.COPY_FROM ||
-                 current.Instruction == OpCode.ADD || current.Instruction == OpCode.SUBTRACT)
+                 current.Instruction == OpCode.ADD || current.Instruction == OpCode.SUBTRACT ||
+                 current.Instruction == OpCode.JUMP_IF_EQUAL || current.Instruction == OpCode.JUMP_IF_GREATER ||
+                 current.Instruction == OpCode.JUMP_IF_LESS)
         {
             // retrieve the waypoint of the current card
             CurrentArg = current.Arg;
@@ -626,5 +732,29 @@ public class Actor : MonoBehaviour
         }
 
         return transform.position;
+    }
+
+    public void ShowDataCube(int? num) {
+        DataCube.SetActive(true);
+        if (num == null) {
+            DataCubeText.text = "NULL";
+        }
+        else {
+            DataCubeText.text = num.ToString();
+        }
+
+    }
+
+    private void HideDataCube() {
+        DataCube.SetActive(false);
+    }
+
+    private void DisplayMessage(string text) {
+        Display.SetActive(true);
+        DisplayText.text = text;
+    }
+
+    private void HideTextBox() {
+        Display.SetActive(false);
     }
 }

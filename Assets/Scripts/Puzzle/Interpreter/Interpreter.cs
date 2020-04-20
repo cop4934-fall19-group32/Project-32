@@ -11,6 +11,9 @@ public class Interpreter : MonoBehaviour
 
     /** Exposes simulation state to interested parties */
     public bool Running { get; private set; }
+    public bool Halted { get; private set; }
+
+    public int TestCases = 10;
 
     /** Represents player solution in SolutionUI */
     private List<Command> Instructions;
@@ -48,6 +51,7 @@ public class Interpreter : MonoBehaviour
         Instructions.Add(GetComponent<Command>());
         Executor.BeginProcessing();
         Running = true;
+        Halted = false;
     }
 
     public void SolutionStep()
@@ -68,6 +72,13 @@ public class Interpreter : MonoBehaviour
             }
 
             Instructions.Add(GetComponent<Command>());
+        }
+
+        // if the next instruction is the last one, 
+        if (Executor.stepCount+1 == GetInstructionCount())
+        {
+            // we may need to implicitly submit their solution after this command
+            Executor.implicitSubmit = true;
         }
 
         // signals the Actor to grab the next instruction
@@ -101,7 +112,8 @@ public class Interpreter : MonoBehaviour
     public void UpdateProgramCounter(ExecutionReport report)
     {
         if (report.RuntimeErrorDetected == true) {
-            StartCoroutine(HaltSimulationHelper());
+            Halted = true;
+            FindObjectOfType<UIController>().HighlightUIElement("HaltButton");
         }
 
         var op = Instructions[ProgramCounter].Instruction;
@@ -115,6 +127,7 @@ public class Interpreter : MonoBehaviour
             case OpCode.JUMP_IF_GREATER:
             case OpCode.JUMP_IF_LESS:
             case OpCode.JUMP_IF_NULL:
+            case OpCode.JUMP_IF_EQUAL:
                 if (report.ConditionalEvaluation == true) {
                     ProgramCounter = (int)jumpTarget;
                 }
@@ -135,16 +148,41 @@ public class Interpreter : MonoBehaviour
     }
 
     public float GetAverageRuntime() {
-        int testCases = 10;
+        CASVM virtualMachine = new CASVM();
+        
+        //Feed vm player instructions
+        virtualMachine.Instructions = Instructions;
+        
+        var puzzleData = FindObjectOfType<GameState>().SelectedPuzzle;
+        
+        //Feed vm input setttings
+        virtualMachine.Inputs = puzzleData.InputStream;
+        if (puzzleData.GenerateRandomInput) {
+            virtualMachine.GenerateRandomInputs = true;
+        }
+
+        //Feed vm cards
+        if (FindObjectOfType<PlayedCardContainer>() != null) { 
+            var playedCards = FindObjectOfType<PlayedCardContainer>().GetComponentsInChildren<CardLogic>();
+            foreach (var card in playedCards) {
+                virtualMachine.MemoryCards.Add(card.Address, card.datastructure);
+            }
+        }
+
+        //Feed vm output generator
+        virtualMachine.OutputGenerator = puzzleData.OutputGenerator;
+
+        int cycles = 0;
+
+        for (int i = 0; i < TestCases; i++) {
+            var cyclesForRun = virtualMachine.Run();
+            if (cyclesForRun == null) {
+                return 999999;
+            }
+            cycles += (int)cyclesForRun;
+        }
 
 
-        return 0.0f;
-    }
-
-    private IEnumerator HaltSimulationHelper() {
-        Running = false;
-        FindObjectOfType<UIController>().HighlightUIElement("HaltButton");
-        yield return new WaitForSeconds(2);
-        FindObjectOfType<UIController>().StopHighlightUIElement("HaltButton");
+        return ((float)cycles) / TestCases;
     }
 }

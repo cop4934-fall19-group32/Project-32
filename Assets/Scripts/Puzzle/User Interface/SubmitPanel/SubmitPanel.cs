@@ -5,7 +5,6 @@ using UnityEngine;
 public class SubmitPanel : MonoBehaviour
 {
     public GameObject SubmitPanelObject;
-    public AudioSource solvedSound;
     public GameObject EfficiencyScoreBoard;
     public GameObject InstructionCountScoreBoard;
     public GameObject MemoryScoreBoard;
@@ -53,27 +52,26 @@ public class SubmitPanel : MonoBehaviour
         {
             EfficiencyScoreBoard.SetActive(true);
             EmptyStarEfficiency.SetActive(true);
-            EfficiencyNeeded.text = puzzleData.EfficiencyRequirement.ToString();
+            EfficiencyNeeded.text = "<= " + puzzleData.EfficiencyRequirement.ToString() + " cycles (avg.)";
         }
 
         if (puzzleData.HasInstructionCount)
         {
             InstructionCountScoreBoard.SetActive(true);
             EmptyStarInstructionCount.SetActive(true);
-            InstructionCountNeeded.text = puzzleData.InstructionCountRequirement.ToString();
+            InstructionCountNeeded.text = "<= " + puzzleData.InstructionCountRequirement.ToString() + " instructions";
         }
 
         if (puzzleData.HasMemory)
         {
             MemoryScoreBoard.SetActive(true);
             EmptyStarMemory.SetActive(true);
-            MemoryNeeded.text = puzzleData.MemoryRequirement.ToString();
+            MemoryNeeded.text = "<= " + puzzleData.MemoryRequirement.ToString() + " bytes";
         }
     }
 
     public void ShowSubmitPanel()
     {
-        solvedSound.Play();
         SubmitPanelObject.SetActive(true);
     }
 

@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class AnchorDragNDropBehavior : DragNDrop
+public class AnchorDragNDropBehavior : DragNDrop, IPointerClickHandler
 {
 	public GameObject JumpTarget;
-	
+	public JumpLineDrawer lineDrawer { private get; set; }
 	private int OldSiblingIndex;
 	private Transform SourceContainer;
 	public Image pointerGraphic;
@@ -17,6 +17,8 @@ public class AnchorDragNDropBehavior : DragNDrop
 	}
 
 	public override void OnBeginDrag(PointerEventData eventData) {
+		JumpLineDrawer.DeactivateAll();
+		lineDrawer.Active = true;
 		OldSiblingIndex = transform.GetSiblingIndex();
 		SourceContainer = transform.parent;
 		base.OnBeginDrag(eventData);
@@ -37,5 +39,10 @@ public class AnchorDragNDropBehavior : DragNDrop
 			color.a = 0.5f;
 			pointerGraphic.color = color;
 		}
+	}
+
+	public void OnPointerClick(PointerEventData eventData) {
+		JumpLineDrawer.DeactivateAll();
+		lineDrawer.Active = true;
 	}
 }

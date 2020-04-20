@@ -61,28 +61,7 @@ public class Character : MonoBehaviour
 	 */
     void Update() 
 	{
-		ProcessInput();
-	}
-
-	/**
-	 * Scans user input devices to discover user commands
-	 */
-	private void ProcessInput() {
-		if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow)) {
-			TriggerMove(MoveDirection.NORTH);
-		}
-		else if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow)) {
-			TriggerMove(MoveDirection.WEST);
-		}
-		else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow)) {
-			TriggerMove(MoveDirection.SOUTH);
-		}
-		else if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow)) {
-			TriggerMove(MoveDirection.EAST);
-		}
-		else if (Input.GetKeyUp(KeyCode.Return) || Input.GetKeyUp(KeyCode.KeypadEnter)) {
-			SelectLevel();
-		}
+		
 	}
 
 	/**
@@ -96,26 +75,6 @@ public class Character : MonoBehaviour
 			transform.position = startNode.transform.position;
 		}
     }
-
-	/**
-	 * Function to trigger a manual move (WASD)
-	 * @param direction The direction to try and move
-	 */
-	public void TriggerMove(MoveDirection direction) 
-    {
-		if (IsMoving) {
-            return;
-        }
-
-        var targetNode = CurrentNode.GetNeighbor(direction);
-        if (targetNode == null) {
-            return;
-        }
-
-		MoveTargetQueue.Enqueue(targetNode);
-
-		StartCoroutine(Move());
-	}
 
 	public void HandleNodeSelect(MapNode node) {
 		if (node == CurrentNode) {
@@ -175,6 +134,7 @@ public class Character : MonoBehaviour
 
 		while (MoveTargetQueue.Count > 0) {
 			var target = MoveTargetQueue.Dequeue();
+            GetComponent<AudioCue>().Play();
 			while (Vector3.SqrMagnitude(transform.position - target.transform.position) > MIN_DIST_SQR) {
 				Debug.Log("MoveTowards");
 

@@ -7,10 +7,6 @@ public class ClearButtonHandler : MonoBehaviour
     public PlayedCardContainer PlayArea;
 
     public void ResetCards() {
-        var cards = PlayArea.GetCards();
-
-        foreach (var card in cards) {
-            StartCoroutine(card.GetComponent<CardDragBehavior>().FlyBack());
-        }
+        StartCoroutine(PlayArea.ReturnCards());        
     }
 }

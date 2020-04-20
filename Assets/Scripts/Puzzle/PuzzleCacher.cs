@@ -61,12 +61,30 @@ public class PuzzleCacher : MonoBehaviour
 
     private void UpdateLevelStars()
     {
-        if (this.EarnedEfficiencyStar)
-            this.playerState.EarnStar(this.PuzzleName, StarType.EFFICIENCY);
-        if (this.EarnedInstructionCountStar)
-            this.playerState.EarnStar(this.PuzzleName, StarType.INSTRUCTION_COUNT);
-        if (this.EarnedMemoryStar)
-            this.playerState.EarnStar(this.PuzzleName, StarType.MEMORY);
+        if (EarnedEfficiencyStar)
+        {
+            if (!playerState.GetStarEarned(PuzzleName, StarType.EFFICIENCY))
+            {
+                playerState.EarnStar(PuzzleName, StarType.EFFICIENCY);
+                playerState.AddToScore(1);
+            }
+        }
+        if (EarnedInstructionCountStar)
+        {
+            if (!playerState.GetStarEarned(PuzzleName, StarType.INSTRUCTION_COUNT))
+            {
+                playerState.EarnStar(PuzzleName, StarType.INSTRUCTION_COUNT);
+                playerState.AddToScore(1);
+            }
+        }
+        if (EarnedMemoryStar)
+        {
+            if (!playerState.GetStarEarned(PuzzleName, StarType.MEMORY))
+            {
+                playerState.EarnStar(PuzzleName, StarType.MEMORY);
+                playerState.AddToScore(1);
+            }
+        }
     }
 
     private float GetMemoryCost()
@@ -75,22 +93,7 @@ public class PuzzleCacher : MonoBehaviour
         foreach (Transform cardObj in CardPlayedPanel.transform)
         {
             CardLogic cardLogic = cardObj.GetComponent<CardLogic>();
-            if (cardLogic.CardType == CardType.REGISTER)
-            {
-                sum += REGISTER_COST;
-            }
-            else if (cardLogic.CardType == CardType.STACK)
-            {
-                sum += STACK_COST;
-            }
-            else if (cardLogic.CardType == CardType.QUEUE)
-            {
-                sum += QUEUE_COST;
-            }
-            else if (cardLogic.CardType == CardType.HEAP)
-            {
-                sum += HEAP_COST;
-            }
+            sum += cardLogic.Cost;
         }
         return sum;
     }

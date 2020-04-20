@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Canvas))]
 [RequireComponent(typeof(CanvasGroup))]
 [RequireComponent(typeof(GraphicRaycaster))]
-public abstract class ControllableUIElement : MonoBehaviour
+public abstract class ControllableUIElement : MonoBehaviour, IPointerClickHandler
 {
 	// Name used to search for the UI element
 	public string ElementName;
@@ -23,7 +24,24 @@ public abstract class ControllableUIElement : MonoBehaviour
 
 	protected GraphicRaycaster raycaster;
 
+	private Color StartColor;
+
 	protected bool Pulsing;
+	protected virtual void Awake() {
+		Initialize();
+		StartColor = GetComponent<Image>().color;
+	}
+
+	public void OnPointerClick(PointerEventData eventData) {
+		StopHighlight();
+	}
+
+	protected void OnDestroy() {
+		var controller = FindObjectOfType<UIController>();
+		if (controller) {
+			controller.RemoveEntry(this);
+		}
+	}
 
 	// Unlock UI element
 	public abstract void Enable();
@@ -37,10 +55,6 @@ public abstract class ControllableUIElement : MonoBehaviour
 	// Restore sorting layer to behind blur panel
 	public abstract void Unfocus();
 
-	protected virtual void Awake() {
-		Initialize();
-	}
-
 	// Controllable UI elements will use sorting layers to override the default rendering order (such as when focusing on an element)
 	public void Initialize()
 	{
@@ -49,7 +63,7 @@ public abstract class ControllableUIElement : MonoBehaviour
 		{
 			throw new System.Exception("ControllableUIElement Requires Canvas component for sorting");
 		}
-		canvas.overrideSorting = true;
+		//canvas.overrideSorting = true;
 
 		raycaster = GetComponent<GraphicRaycaster>();
 		if (raycaster == null)
@@ -67,28 +81,6 @@ public abstract class ControllableUIElement : MonoBehaviour
 		}
 	}
 
-	public void CalculateSortingOrder() {
-		int sortOrder = 0;
-
-		var parent = transform.parent;
-		while (parent != null) {
-			if (parent.GetComponent<ControllableUIElement>()) {
-
-				sortOrder += 1;
-
-			}
-
-			if (parent.GetComponent<UIController>()) {
-				break;
-			}
-
-			parent = parent.transform.parent;
-		}
-
-		canvas.sortingOrder = sortOrder;
-
-	}
-
 	// Draw attention to control
 	public virtual void StartHighlight()
 	{
@@ -103,8 +95,6 @@ public abstract class ControllableUIElement : MonoBehaviour
 	public virtual void StopHighlight()
 	{
 		Pulsing = false;
-		StopCoroutine(Pulse());
-		ElementGraphic.color = new Color(1, 1, 1, 1);
 	}
 
 	protected IEnumerator Pulse()
@@ -116,6 +106,7 @@ public abstract class ControllableUIElement : MonoBehaviour
 		{
 			//Approach grey color
 			while (true){
+				if (!Pulsing) break;
 				ElementGraphic.color = Color.Lerp(ElementGraphic.color, Color.gray, 0.10f);
 
 				var colorDifference = Mathf.Abs(
@@ -135,6 +126,7 @@ public abstract class ControllableUIElement : MonoBehaviour
 			//Approach white color
 			while (true)
 			{
+				if (!Pulsing) break;
 				ElementGraphic.color = Color.Lerp(ElementGraphic.color, Color.white, 0.10f);
 
 				var colorDifference = Mathf.Abs(
@@ -151,5 +143,7 @@ public abstract class ControllableUIElement : MonoBehaviour
 
 			yield return null;
 		}
+		ElementGraphic.color = StartColor;
 	}
+
 }

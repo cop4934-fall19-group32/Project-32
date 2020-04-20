@@ -15,24 +15,18 @@ public class UIControl : ControllableUIElement
 
 		ElementGraphic = GetComponent<Image>();
 		controlButton = GetComponent<Button>();
-		canvas.sortingLayerName = "UIControl";
-	}
-
-	protected void OnDestroy() {
-		var controller = FindObjectOfType<UIController>();
-		if (controller) { 
-			controller.RemoveEntry(this);
-		}
+		//canvas.sortingLayerName = "UIControl";
 	}
 
 	public override void Focus()
 	{
+		canvas.overrideSorting = true;
 		canvas.sortingLayerName = "Focus";
 	}
 
 	public override void Unfocus()
 	{
-		canvas.sortingLayerName = "UIControl";
+		canvas.overrideSorting = false;
 	}
 
 

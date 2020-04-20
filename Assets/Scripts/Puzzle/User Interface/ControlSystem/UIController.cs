@@ -16,7 +16,8 @@ public class UIController : MonoBehaviour
 		ScanForControls();
 	}
 
-	public void ScanForControls() {
+	public void ScanForControls() 
+	{
 		ControllableUIElements = new Dictionary<string, ControllableUIElement>();
 		var controlsList = FindObjectsOfType<ControllableUIElement>();
 		foreach (var control in controlsList) {
@@ -26,43 +27,6 @@ public class UIController : MonoBehaviour
 			}
 
 			ControllableUIElements.Add(control.ElementName, control);
-		}
-	}
-
-	private IEnumerator SortingLayerStabilizer() {
-		while (true) {
-			StabilizeSortingLayer();
-			yield return new WaitForSeconds(0.5f);
-		}
-	}
-
-	//TODO @Sam Sepiol: Replace with more efficient algorithm (GH-131)
-	private void StabilizeSortingLayer() {
-		foreach(var element in ControllableUIElements.Values){
-			int sortOrder = 0;
-
-			var parent = transform.parent;
-			var canvas = element.GetComponent<Canvas>();
-			while (parent != null) {
-				if (parent.GetComponent<ControllableUIElement>()) {
-
-					Debug.Log("element \"" + transform.name + "\" sort order: " + sortOrder);
-					sortOrder += 1;
-
-				}
-
-				if (parent.GetComponent<UIController>()) {
-					break;
-				}
-
-				parent = parent.transform.parent;
-			}
-
-			Debug.Log("element \"" + transform.name + "\" sorting order: " + canvas.sortingOrder + " (before)");
-
-			canvas.sortingOrder = sortOrder;
-
-			Debug.Log("element \"" + transform.name + "\" sorting order: " + canvas.sortingOrder + " (after)");
 		}
 	}
 
@@ -170,6 +134,12 @@ public class UIController : MonoBehaviour
 		return true;
 	}
 
+	public bool FocusUIElement(ControllableUIElement element) {
+		blurPanel.SetActive(true);
+		element.Focus();
+		return true;
+	}
+
 	public bool UnfocusUIElement(string elementName)
 	{
 		if (!ControllableUIElements.ContainsKey(elementName))
@@ -223,6 +193,12 @@ public class UIController : MonoBehaviour
 		ControllableUIElements[elementName].StopHighlight();
 
 		return true;
+	}
+
+	public void StopAllHighlights() {
+		foreach (var element in ControllableUIElements) {
+			element.Value.StopHighlight();
+		}
 	}
 
 	public GameObject GetElement(string elementName)

@@ -11,6 +11,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class UIControlGroup : ControllableUIElement
 {
+	public UIControl[] ChildControls { get { return GetComponentsInChildren<UIControl>(); } }
 	protected override void Awake()
 	{
 		base.Awake();
@@ -21,9 +22,9 @@ public class UIControlGroup : ControllableUIElement
 
 	public override void Focus()
 	{
-		GetChildControls();
+		canvas.overrideSorting = true;
 		canvas.sortingLayerName = "Focus";
-		foreach (var child in GetChildControls())
+		foreach (var child in ChildControls)
 		{
 			child.Focus();
 		}
@@ -31,9 +32,8 @@ public class UIControlGroup : ControllableUIElement
 
 	public override void Unfocus()
 	{
-		GetChildControls();
-		canvas.sortingLayerName = "UIControlGroup";
-		foreach (var child in GetChildControls())
+		canvas.overrideSorting = false;
+		foreach (var child in ChildControls)
 		{
 			child.Unfocus();
 		}
@@ -41,8 +41,7 @@ public class UIControlGroup : ControllableUIElement
 
 	public override void Enable()
 	{
-		GetChildControls();
-		foreach (var child in GetChildControls())
+		foreach (var child in ChildControls)
 		{
 			child.Enable();
 		}
@@ -53,7 +52,7 @@ public class UIControlGroup : ControllableUIElement
 
 	public override void Disable()
 	{
-		foreach (var child in GetChildControls())
+		foreach (var child in ChildControls)
 		{
 			child.Disable();
 		}
@@ -62,10 +61,16 @@ public class UIControlGroup : ControllableUIElement
 		canvasGroup.alpha = 0.9f;
 	}
 
-	// Because child controls can be reparented through gameplay, ControlGroup should
-	// ensure it gets a correct list of child controls. Setting on awake could lead to invalid operations
-	private UIControl[] GetChildControls()
-	{
-		return GetComponentsInChildren<UIControl>();
+	public override void StartHighlight() {
+		foreach (var child in ChildControls) {
+			child.StartHighlight();
+		}
 	}
+
+	public override void StopHighlight() {
+		foreach (var child in ChildControls) {
+			child.StopHighlight();
+		}
+	}
+
 }

@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1420504740211766274
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1420504740211766279}
+  - component: {fileID: 1420504740211766277}
+  - component: {fileID: 1420504740211766276}
+  - component: {fileID: 1420504740211766278}
+  m_Layer: 0
+  m_Name: PuzzleGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1420504740211766279
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420504740211766274}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.297194, y: 9.568398, z: -2513.6016}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1420504740211766277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420504740211766274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d2055a4c3ba8b489ec2bb77d686795, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UICanvas: {fileID: 0}
+  CardHandPanel: {fileID: 0}
+  CardPlayedPanel: {fileID: 0}
+  SubmitPanel: {fileID: 0}
+  InputBox: {fileID: 0}
+  OutputBox: {fileID: 0}
+  SolutionWindow: {fileID: 0}
+--- !u!114 &1420504740211766276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420504740211766274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1705771323e4c548bf231c667e9a5e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InstructionLibrary:
+  - Instruction: 0
+    Prefab: {fileID: 394953374784656636, guid: 09d5ef624992fd047a513dbfa1ee5a0f, type: 3}
+  - Instruction: 1
+    Prefab: {fileID: 7558077391369251188, guid: 26be46cb981321f48a94010ab227f976,
+      type: 3}
+  - Instruction: 2
+    Prefab: {fileID: 2671430708325913227, guid: d0241d83c0930f54c81d9a716b5d2ec3,
+      type: 3}
+  - Instruction: 3
+    Prefab: {fileID: 3656832526593045464, guid: 76fc83da5db03e44b990063dbade7ac5,
+      type: 3}
+  - Instruction: 4
+    Prefab: {fileID: 5140044079123154222, guid: bd244f8174f026d4c9c99d8e6ac533df,
+      type: 3}
+  - Instruction: 5
+    Prefab: {fileID: 2493160374445437829, guid: fe63f6ecb0002b841913701180c412c6,
+      type: 3}
+  - Instruction: 6
+    Prefab: {fileID: 897029012168454562, guid: 03e0bf1a6ca548c4a955fae47453c9d6, type: 3}
+  - Instruction: 7
+    Prefab: {fileID: 5486513935156648338, guid: 7a0b4d9ed4394ae408ec6e078903659b,
+      type: 3}
+  - Instruction: 9
+    Prefab: {fileID: 3589308986998412837, guid: 1929a84ccae1cad4e87f04d75e2cdc07,
+      type: 3}
+  - Instruction: 8
+    Prefab: {fileID: 7423980822517869245, guid: 4f7a7ba7f6e822049831e50545bb7774,
+      type: 3}
+  - Instruction: 10
+    Prefab: {fileID: 6753975131004370087, guid: 80eb95ef92610fb45aa407afd443c13f,
+      type: 3}
+  - Instruction: 11
+    Prefab: {fileID: 8653612734766337291, guid: 6617b8229daa3d140b519ac9d6a8b56a,
+      type: 3}
+  - Instruction: 12
+    Prefab: {fileID: 7442171440290944049, guid: f2528e9b9c50c644ead22cbfd8c0efd3,
+      type: 3}
+  - Instruction: 14
+    Prefab: {fileID: 3259098204982303484, guid: 66f0df84187e89540a2ff3be55e84880,
+      type: 3}
+--- !u!114 &1420504740211766278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420504740211766274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e84a7d2b616bdda46bbab465e312e33a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RegisterCardPrefab: {fileID: 5453393034527696, guid: 00961b4f0e437f54bb0551c1e525e9c7,
+    type: 3}
+  StackCardPrefab: {fileID: 2317115453060161737, guid: 35998142239e0eb41ab3b3cad74ab883,
+    type: 3}
+  QueueCardPrefab: {fileID: 9166372492127931951, guid: 0adf1b2f2bed6d046aef961454166276,
+    type: 3}
+  HeapCardPrefab: {fileID: 3659704807996798034, guid: be6f1cbee7adcba4abe5f43712eddc50,
+    type: 3}
+  CardHand: {fileID: 0}
+  CardPlayArea: {fileID: 0}

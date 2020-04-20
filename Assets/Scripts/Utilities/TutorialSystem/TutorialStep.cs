@@ -7,6 +7,8 @@ public class TutorialStep
 {
     public bool Complete { get { return IsComplete(); } }
     public string Description { get; set; }
+    public float EndDelay { get; set; }
+
     private List<Action> BeginBehaviors;
     private List<Func<bool>> CompleteChecks;
     private List<Action> EndBehaviors;

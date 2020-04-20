@@ -37,4 +37,16 @@ public class PlayedCardContainer : CardContainer
 
         return children;
     }
+
+    public IEnumerator ReturnCards() {
+        var cards = GetCards();
+        var lastCard = cards[cards.Count - 1];
+        cards.RemoveAt(cards.Count - 1);
+
+        foreach (var card in GetCards()) {
+            StartCoroutine(card.GetComponent<CardDragBehavior>().FlyBack());
+        }
+
+        yield return StartCoroutine(lastCard.GetComponent<CardDragBehavior>().FlyBack());
+    }
 }

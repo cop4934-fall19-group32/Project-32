@@ -46,6 +46,10 @@ public class CardDragBehavior
     private static bool Growing;
     private bool Flying;
 
+    private AudioCue CardDragAudio;
+    private AudioCue CardDropValidAudio;
+    private AudioCue CardDropInvalidAudio;
+
     private void Start() {
         UICanvas = GameObject.FindGameObjectWithTag("MainUICanvas").GetComponent<Canvas>();
         CardHand = FindObjectOfType<CachedCardContainer>();
@@ -54,10 +58,36 @@ public class CardDragBehavior
             Debug.LogError("Card spawned outside of container. Card will be destroyed");
             Destroy(gameObject);
         }
+        InitializeAudioCues();
+    }
+
+    private void InitializeAudioCues() {
+        AudioCue[] audioCues = GetComponents<AudioCue>();
+        foreach (AudioCue audioCue in audioCues)
+        {
+            if (audioCue.Name == "Card Drag Audio")
+            {
+                CardDragAudio = audioCue;
+            }
+            else if (audioCue.Name == "Card Drop Valid Audio")
+            {
+                CardDropValidAudio = audioCue;
+            }
+            else if (audioCue.Name == "Card Drop Invalid Audio")
+            {
+                CardDropInvalidAudio = audioCue;
+            }
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData) {
+        CardDragAudio.Play();
         StartCoroutine(ShrinkCard());
+        
+        var myCanvas = GetComponent<Canvas>();
+        myCanvas.overrideSorting = true;
+        myCanvas.sortingLayerName = "Focus";
+        myCanvas.sortingOrder = 30000;
 
         if (GetComponent<CardLogic>().BoundInstructions.Count > 0 || Flying) {
             eventData.pointerDrag = null;
@@ -82,8 +112,15 @@ public class CardDragBehavior
         Dragging = false; 
 
         if (!DragTargetValid) {
+            CardDropInvalidAudio.Play();
             StartCoroutine(FlyBack());
         }
+        else {
+            CardDropValidAudio.Play();
+        }
+
+        var myCanvas = GetComponent<Canvas>();
+        myCanvas.overrideSorting = false;
 
         GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
@@ -101,7 +138,12 @@ public class CardDragBehavior
 
     public void OnPointerEnter(PointerEventData eventData) {
         if (Growing || Dragging) return;
-        
+
+        var myCanvas = GetComponent<Canvas>();
+        myCanvas.overrideSorting = true;
+        myCanvas.sortingLayerName = "Focus";
+        myCanvas.sortingOrder = 1000;
+
         if (ActiveShrink != null) {
             StopCoroutine(ActiveShrink);
         }
@@ -111,13 +153,17 @@ public class CardDragBehavior
     }
 
     public void OnPointerExit(PointerEventData eventData) {
+        if (Dragging) {
+            return;
+        }
         ActiveShrink = StartCoroutine(ShrinkCard());
+        var myCanvas = GetComponent<Canvas>();
+        myCanvas.overrideSorting = false;
     }
 
     public IEnumerator GrowCard() {
-        var oldLayer = GetComponent<Canvas>().sortingLayerName;
         var targetScale = new Vector3(GrowFactor, GrowFactor, 1);
-        GetComponent<Canvas>().sortingLayerName = "Focus";
+
         Growing = true;
 
         float elapsedTime = 0.0f;
@@ -136,13 +182,10 @@ public class CardDragBehavior
         }
 
         Growing = false;
-        GetComponent<Canvas>().sortingLayerName = oldLayer;
     }
 
     public IEnumerator ShrinkCard() {
-        var oldLayer = GetComponent<Canvas>().sortingLayerName;
         var targetScale = new Vector3(1, 1, 1);
-        GetComponent<Canvas>().sortingLayerName = "Focus";
 
         float elapsedTime = 0.0f;
         while (elapsedTime < GrowTime) {
@@ -159,7 +202,7 @@ public class CardDragBehavior
             yield return null;
         }
 
-        GetComponent<Canvas>().sortingLayerName = oldLayer;
+        transform.localScale = new Vector3(1, 1, 1);
     }
 
     public IEnumerator SwingCard(float duration, Quaternion targetWorldRotation) {

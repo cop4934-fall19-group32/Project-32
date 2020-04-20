@@ -8,7 +8,7 @@ using UnityEngine.UI;
 // This script should be attached to the high level "Dynamic Scroll View" game object.
 
 
-public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
 	// Specify the Content gameobject of the scrollview.
 	public GameObject contentPanel { get; set; }
@@ -72,7 +72,8 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 
 		//Child count is checked against 2, as the placeholder slot is not destroyed until end of frame
 		if (contentPanel.transform.childCount == 2) {
-			StartCoroutine(HintStart());
+			var UIController = FindObjectOfType<UIController>();
+			UIController.HighlightUIElement("PlayButton");
 		}
 	}
 
@@ -93,6 +94,7 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 			eventData.pointerDrag.GetComponent<DragNDrop>().activeDynamicScrollView = null;
 			DestroyButtonSlot();
 		}
+		//JumpLineDrawer.ActivateAll();
 	}
 
 	public void SpawnButtonSlot(PointerEventData eventData)
@@ -182,11 +184,7 @@ public class InstructionContainer : MonoBehaviour, IDropHandler, IPointerEnterHa
 		}
 	}
 
-	IEnumerator HintStart() {
-		yield return new WaitForSeconds(0.25f);
-		var UIController = FindObjectOfType<UIController>();
-		UIController.HighlightUIElement("PlayButton");
-		yield return new WaitForSeconds(4.0f);
-		UIController.StopHighlightUIElement("PlayButton");
+	public void OnPointerClick(PointerEventData eventData) {
+		JumpLineDrawer.ActivateAll();
 	}
 }

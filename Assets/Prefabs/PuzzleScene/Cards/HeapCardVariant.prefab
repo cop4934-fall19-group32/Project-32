@@ -12,17 +12,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: HeapCardVariant
       objectReference: {fileID: 0}
-    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
-        type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: c05ce52b4b2220c45a86bf64c7a5a69c,
-        type: 3}
-    - target: {fileID: 4423051769394595748, guid: efa0066b97c081441b273d9831acad45,
-        type: 3}
-      propertyPath: CardType
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 3133256309748666270, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -117,6 +106,22 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: c05ce52b4b2220c45a86bf64c7a5a69c,
+        type: 3}
+    - target: {fileID: 4423051769394595748, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: CardType
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4423051769394595748, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: Cost
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 608453579456476129, guid: efa0066b97c081441b273d9831acad45,
         type: 3}

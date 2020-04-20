@@ -2,44 +2,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public struct InstructionFactoryEntry {
+	public OpCode Instruction;
+	public GameObject Prefab;
+}
+
+
 public class InstructionFactory : MonoBehaviour
 {
-	public GameObject BasicInstructionPrefab;
-	public GameObject JumpInstructionPrefab;
-	public GameObject JumpAnchorPrefab;
-	public GameObject CopyMoveInstructionPrefab;
-	public GameObject CardJumpInstructionPrefab;
-	public GameObject MathInstructionPrefab;
+	/**
+	 * Used to construct factoryEntries map at runtime becuase Dictionaries are not serializable
+	 */
+	public InstructionFactoryEntry[] InstructionLibrary;
+
+	/** Maps OpCode to Prefab to spawn instructions at runtime */
+	private Dictionary<OpCode, GameObject> FactoryEntries;
+	
+	protected void Awake() {
+		
+	}
 
 	public GameObject SpawnInstruction(OpCode instruction, Transform desiredParent) {
-		switch (instruction) {
-			case OpCode.INPUT:
-			case OpCode.OUTPUT:
-				return Instantiate(BasicInstructionPrefab, desiredParent);
+		//Avoid static initialization issues by lazily generating entries from library
+		if (FactoryEntries == null) {
+			FactoryEntries = new Dictionary<OpCode, GameObject>();
 
-			case OpCode.JUMP:
-			case OpCode.JUMP_IF_NULL:
-				return Instantiate(JumpInstructionPrefab, desiredParent);
+			foreach (var entry in InstructionLibrary) {
+				FactoryEntries.Add(entry.Instruction, entry.Prefab);
+			}
+		}
 
-			case OpCode.NO_OP:
-				return Instantiate(JumpAnchorPrefab, desiredParent);
+		if (!FactoryEntries.ContainsKey(instruction)) {
+			Debug.LogError("InstructionFactory received unrecognized opcode.");
+			throw new System.Exception("Add the fucking opcode");
+		}
 
-			case OpCode.MOVE_TO:
-			case OpCode.MOVE_FROM:
-			case OpCode.COPY_TO:
-			case OpCode.COPY_FROM:
-				return Instantiate(CopyMoveInstructionPrefab, desiredParent);
-
-			case OpCode.JUMP_IF_GREATER:
-			case OpCode.JUMP_IF_LESS:
-				return Instantiate(CardJumpInstructionPrefab, desiredParent);
-
-			case OpCode.ADD:
-			case OpCode.SUBTRACT:
-				return Instantiate(MathInstructionPrefab, desiredParent);
-
-			default:
-				throw new System.Exception("OpCode not recognized. Please fix your shit");
-		}	
+		return Instantiate(FactoryEntries[instruction], desiredParent);
 	}
 }

@@ -18,8 +18,7 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 	public ParticleSystem ParticleEmmiter;
 
 	/** Per node options to control node representation */
-	[Header("Options")] //
-	public int LevelCode;
+	[Header("Options")]
 	public int ScoreRequired;
     public bool IsJunction;
 
@@ -133,6 +132,7 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 			return;
 		}
 
+        GetComponent<AudioCue>().Play();
 		mapcontroller.ReportNodeSelection(this);
 	}
 
@@ -182,40 +182,6 @@ public class MapNode : MonoBehaviour, IPointerClickHandler
 			lineRenderer.SetPosition(positionIndex++, transform.position);
 		}
 	}
-
-	/**
-	 * Converts MoveDirection input into a neighbor node
-	 * @param direction The desired direction of the neighbor
-	 * @return The neighbor node in the specified direction
-	 */
-	public MapNode GetNeighbor(MoveDirection direction) {
-        MapNode target = null;
-        
-        switch (direction) {
-            case MoveDirection.NORTH:
-				if (!North.Locked) { 
-					target = North;
-				}
-                break;
-            case MoveDirection.SOUTH:
-				if (!South.Locked) { 
-					target = South;
-				}
-                break;
-            case MoveDirection.EAST:
-				if (!East.Locked) { 
-					target = East;
-				}
-                break;
-            case MoveDirection.WEST:
-				if (!West.Locked) { 
-					target = West;
-				}
-                break;
-        }
-
-        return target;
-    }
 
 	/**
 	 * Helper function to draw a debug line between this and target pin

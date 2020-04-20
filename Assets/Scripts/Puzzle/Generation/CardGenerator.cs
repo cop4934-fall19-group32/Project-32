@@ -20,6 +20,9 @@ public class CardGenerator : MonoBehaviour
     public void GenerateHand(PuzzleData puzzleData)
     {
         System.Random random = new System.Random(puzzleData.CardAddressSeed);
+        if (puzzleData.NumRegisterCards + puzzleData.NumStackCards + puzzleData.NumQueueCards + puzzleData.NumHeapCards == 0) {
+            Destroy(GameObject.FindGameObjectWithTag("CardElements"));
+        }
         SpawnCard(RegisterCardPrefab, puzzleData.NumRegisterCards, random);
         SpawnCard(StackCardPrefab, puzzleData.NumStackCards, random);
         SpawnCard(QueueCardPrefab, puzzleData.NumQueueCards, random);

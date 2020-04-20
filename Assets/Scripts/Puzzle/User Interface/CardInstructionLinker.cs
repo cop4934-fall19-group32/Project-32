@@ -29,20 +29,23 @@ public class CardInstructionLinker : MonoBehaviour
 
     private IEnumerator Link() {
         Debug.Log("Beginning linker phase");
-
         var uiController = FindObjectOfType<UIController>();
+        uiController.FocusUIElement("CardHandArea");
         uiController.FocusUIElement("CardPlayArea");
-
+        if (FindObjectOfType<PlayedCardContainer>().Count < 1) {
+            uiController.HighlightUIElement("CardHandArea");
+        }
 
         while (Card == null) {
             yield return null;
         }
 
+        GetComponent<AudioCue>().Play();
         Instruction.GetComponent<CardCommandDragNDrop>().BindCard(Card);
         Card.GetComponent<CardLogic>().LinkInstruction(Instruction);
 
         uiController.ClearFocus();
-
+        uiController.StopAllHighlights();
         Debug.Log("Instruction linked. Linker self-destructing");
         Destroy(this);
     }

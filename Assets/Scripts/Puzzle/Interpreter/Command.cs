@@ -14,6 +14,7 @@ public enum OpCode
     JUMP_IF_NULL,
     JUMP_IF_LESS,
     JUMP_IF_GREATER,
+    JUMP_IF_EQUAL,
     MOVE_TO,
     COPY_TO,
     MOVE_FROM,
@@ -39,6 +40,9 @@ public class Command : MonoBehaviour
 
     [SerializeField]
     public Nullable<uint> Target;
+    
+    [SerializeField]
+    public string Description;
 }
 
 /**

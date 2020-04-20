@@ -31,6 +31,10 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 	// If the button clones itself, store a reference to the duplicate.
 	private GameObject clone;
 
+    private AudioCue InstructionDragAudio;
+    private AudioCue InstructionDropValidAudio;
+    private AudioCue InstructionDropInvalidAudio;
+
 	public void Initialize()
 	{
 		dragTargetValid = true;
@@ -46,17 +50,36 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 		rectTransform = GetComponent<RectTransform>();
 		canvasGroup = GetComponent<CanvasGroup>();
 
-		var buttonText = GetComponentInChildren<TextMeshProUGUI>();
-		if (buttonText) { 
-			buttonText.SetText(GetComponent<Command>().Instruction.ToString());
-		}
 		GetComponent<UIControl>().ElementName = GetComponent<Command>().Instruction.ToString();
 	}
 
 	protected virtual void Awake()
 	{
 		Initialize();
+        InitializeAudioCues();
 	}
+
+    private void InitializeAudioCues()
+    {
+        AudioCue[] audioCues = GetComponents<AudioCue>();
+        foreach (AudioCue audioCue in audioCues)
+        {
+            if (audioCue.Name == "Instruction Drag Audio")
+            {
+                InstructionDragAudio = audioCue;
+            }
+            else if (audioCue.Name == "Instruction Drop Valid Audio")
+            {
+                InstructionDropValidAudio = audioCue;
+            }
+        }
+
+        Transform content = this.transform.parent;
+        Transform viewport = content.parent;
+        Transform scrollView = viewport.parent;
+        Transform window = scrollView.parent;
+        InstructionDropInvalidAudio = window.GetComponent<AudioCue>();
+    }
 
 	protected virtual void OnDestroy() {
 		;
@@ -65,15 +88,20 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 	// Called when beginning to drag object
 	public virtual void OnBeginDrag(PointerEventData eventData)
 	{
+        InstructionDragAudio.Play();
+
 		CurrDragInstruction = this;
-		if(isClonable)
-		{
+		if (isClonable) {
 			// When dragging the object from its original position, create a clone of the object.
 			clone = Instantiate(gameObject, transform.position, transform.rotation, transform.parent);
 			clone.transform.SetSiblingIndex(transform.GetSiblingIndex());
 			isClonable = false;
 		}
 
+		var myCanvas = GetComponent<Canvas>();
+		myCanvas.overrideSorting = true;
+		myCanvas.sortingLayerName = "Focus";
+		myCanvas.sortingOrder = 1000;
 
 		dragTargetValid = false;
 		canvasGroup.alpha = .8f;
@@ -100,9 +128,12 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 		}
 	}
 
+
 	// Called when ending the dragging of an object
 	public virtual void OnEndDrag(PointerEventData eventData)
 	{
+		var myCanvas = GetComponent<Canvas>();
+		myCanvas.overrideSorting = false;
 		CurrDragInstruction = null;
 		canvasGroup.alpha = 1f;
 
@@ -112,8 +143,13 @@ public class DragNDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
 		// If the object is dropped outside of a valid item slot, handle an invalid drop
 		if (!dragTargetValid)
 		{
-			HandleInvalidDrop();
+            InstructionDropInvalidAudio.Play();
+            HandleInvalidDrop();
 		}
+        else
+        {
+            InstructionDropValidAudio.Play();
+        }
 	}
 
 	// Destroy this gameobject

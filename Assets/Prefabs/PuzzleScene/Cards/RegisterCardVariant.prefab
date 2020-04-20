@@ -12,12 +12,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: RegisterCardVariant
       objectReference: {fileID: 0}
-    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
-        type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 40dbed2c5c78c7e4fb0165eede8e61d3,
-        type: 3}
     - target: {fileID: 3133256309748666270, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -113,6 +107,22 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8765023959969812623, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 40dbed2c5c78c7e4fb0165eede8e61d3,
+        type: 3}
+    - target: {fileID: 4423051769394595748, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: Cost
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8340237931174833614, guid: efa0066b97c081441b273d9831acad45,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -1.5999985
+      objectReference: {fileID: 0}
     - target: {fileID: 608453579456476129, guid: efa0066b97c081441b273d9831acad45,
         type: 3}
       propertyPath: m_AnchorMin.y
@@ -159,11 +169,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_margin.y
       value: -0.29756165
-      objectReference: {fileID: 0}
-    - target: {fileID: 8340237931174833614, guid: efa0066b97c081441b273d9831acad45,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -1.5999985
       objectReference: {fileID: 0}
     - target: {fileID: 6544585899417239847, guid: efa0066b97c081441b273d9831acad45,
         type: 3}

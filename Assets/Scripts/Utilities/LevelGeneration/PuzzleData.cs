@@ -8,7 +8,6 @@ public class PuzzleData : MonoBehaviour
         PuzzleName = transform.parent.name;
         var nextNode = gameObject.GetComponentInParent<MapNode>().Next;
 
-        Debug.LogWarning("Puzzle " + PuzzleName + " does not have a 'next node'");
         NextPuzzleName = (nextNode != null) ? nextNode.gameObject.name : PuzzleName;
 
         if (GenerateRandomInput) {
@@ -61,6 +60,7 @@ public class PuzzleData : MonoBehaviour
     public bool JumpIfNull = false;
     public bool JumpIfLess = false;
     public bool JumpIfGreater = false;
+    public bool JumpIfEqual = false;
     public bool MoveTo = false;
     public bool CopyTo = false;
     public bool MoveFrom = false;

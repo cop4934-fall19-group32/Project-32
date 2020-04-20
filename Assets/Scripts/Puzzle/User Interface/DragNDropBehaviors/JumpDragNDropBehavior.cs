@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(JumpLineDrawer))]
-public class JumpDragNDropBehavior : DragNDrop {
+public class JumpDragNDropBehavior : DragNDrop, IPointerClickHandler {
 	
 	public GameObject JumpTarget;
 	public GameObject childAnchor { get; set; }
@@ -40,6 +40,8 @@ public class JumpDragNDropBehavior : DragNDrop {
 
 	public override void OnBeginDrag(PointerEventData eventData) {
 		base.OnBeginDrag(eventData);
+		JumpLineDrawer.DeactivateAll();
+		jumpLineDrawer.Active = true;
 		if (childAnchor != null) {
 			var anchorBehavior = childAnchor.GetComponent<AnchorDragNDropBehavior>();
 			anchorBehavior.HighlightArrow(true);
@@ -63,11 +65,12 @@ public class JumpDragNDropBehavior : DragNDrop {
 			activeDynamicScrollView;
 		jumpLineDrawer.anchorTransform = 
 			childAnchor.GetComponent<AnchorDragNDropBehavior>().JumpTarget.GetComponent<RectTransform>();
+		childAnchor.GetComponent<AnchorDragNDropBehavior>().lineDrawer = jumpLineDrawer;
 	}
 
 	private void SpawnAnchor() {
 		//Spawn anchor
-		childAnchor = Instantiate(FindObjectOfType<InstructionFactory>().JumpAnchorPrefab, transform.parent);
+		childAnchor = FindObjectOfType<InstructionFactory>().SpawnInstruction(OpCode.NO_OP, transform.parent);
 		AttachAnchor(childAnchor);
 		childAnchor.transform.SetSiblingIndex(transform.GetSiblingIndex() + 1);
 	}
@@ -80,4 +83,8 @@ public class JumpDragNDropBehavior : DragNDrop {
 		}
 	}
 
+	public void OnPointerClick(PointerEventData eventData) {
+		JumpLineDrawer.DeactivateAll();
+		jumpLineDrawer.Active = true;
+	}
 }

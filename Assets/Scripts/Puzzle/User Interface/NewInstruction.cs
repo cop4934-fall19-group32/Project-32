@@ -16,7 +16,6 @@ public class NewInstruction : MonoBehaviour
 	private GameObject NewInstructionsPanel;
 
 	public OpCode command;
-	private string MatchingInstruction;
 	public bool revealed;
 	public TMPro.TextMeshProUGUI instructionHeader;
 	public TMPro.TextMeshProUGUI instructionDescription;
@@ -43,14 +42,13 @@ public class NewInstruction : MonoBehaviour
 		instructionHeader = transform.Find("Header").GetComponentInChildren<TMPro.TextMeshProUGUI>();
 		instructionHeader.text = command.ToString();
 		instructionDescription = transform.Find("Description").GetComponentInChildren<TMPro.TextMeshProUGUI>();
-		instructionDescription.text = "Here is a description of the " + command.ToString() + " instruction...";
-
-		MatchingInstruction = FindMatchingInstruction(command);
 
 		GameObject instructionObj = PuzzleGenerator.GetComponent<InstructionFactory>().SpawnInstruction(this.command, instructionHeader.transform);
+		instructionDescription.text = instructionObj.GetComponent<Command>().Description;
 
 		// Get rid of unnecessary components
 		Destroy(instructionObj.GetComponent<UIControl>());
+		Destroy(instructionObj.GetComponent<DragNDrop>());
 		Destroy(instructionObj.GetComponent<GraphicRaycaster>());
 		Destroy(instructionObj.GetComponent<Canvas>());
 
@@ -58,6 +56,7 @@ public class NewInstruction : MonoBehaviour
 		instructionObj.GetComponent<RectTransform>().anchorMax = Vector2.one;
 		instructionObj.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
 		instructionObj.GetComponent<RectTransform>().anchoredPosition = instructionHeader.GetComponent<RectTransform>().anchoredPosition;
+		instructionObj.GetComponent<RectTransform>().localScale = new Vector3(1.75f, 1.75f, 1.75f);
 	}
 
 
@@ -70,20 +69,4 @@ public class NewInstruction : MonoBehaviour
 		this.obfuscator.gameObject.SetActive(false);
 	}
 
-	// Given a new type of command, find an instruction object in the instruction cache that has the same OpCode and return its ElementName to be used by the UIController.
-	private string FindMatchingInstruction(OpCode op)
-	{
-		int i = 0;
-		foreach (Transform child in InstructionContentPanel.transform)
-		{
-			i++;
-			if (child.GetComponent<Command>().Instruction == op)
-			{
-				Debug.Log("Instruction found for OpCode: [" + op.ToString() + "]");
-				return child.GetComponent<ControllableUIElement>().ElementName;;
-			}
-		}
-		Debug.LogError("Instruction not found for OpCode: [" + op.ToString() + "]. Searched " + i + " elements.");
-		return null;
-	}
 }

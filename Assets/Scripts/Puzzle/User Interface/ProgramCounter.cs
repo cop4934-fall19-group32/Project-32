@@ -10,14 +10,17 @@ public class ProgramCounter : MonoBehaviour
 	private GameObject interpreter;
 	private int pc;
 	private GameObject indicator;
+	private GameObject pcMask;
 	private GameObject contentPanel;
 	private GameObject currentInstruction;
+	private Coroutine pcRoutine;
 
 
-	// Start is called before the first frame update
-	public void Start()
+	public void Awake()
 	{
+		pcRoutine = null;
 		interpreter = GameObject.Find("Interpreter");
+		pcMask = transform.Find("Scroll View/PC Mask").gameObject;
 		contentPanel = transform.Find("Scroll View/Viewport/Content").gameObject;
 		if (contentPanel == null)
 		{
@@ -27,7 +30,7 @@ public class ProgramCounter : MonoBehaviour
 
 	public void BeginProgramCounter()
 	{
-		StartCoroutine(UpdateProgramCounter());
+		pcRoutine = StartCoroutine(UpdateProgramCounter());
 	}
 
 	public void SpawnPCIndicator()
@@ -35,7 +38,7 @@ public class ProgramCounter : MonoBehaviour
 		// Create indicator object as a child of the current PC instruction
 		currentInstruction = contentPanel.transform.GetChild(pc).gameObject;
 		Vector3 pos = currentInstruction.transform.position;
-		this.indicator = Instantiate(indicatorPrefab, pos, Quaternion.identity, this.transform);
+		indicator = Instantiate(indicatorPrefab, pos, Quaternion.identity, pcMask.transform);
 		Vector3 localPos = indicator.transform.localPosition;
 		localPos.x = 15;
 		indicator.transform.localPosition = localPos;
@@ -45,8 +48,14 @@ public class ProgramCounter : MonoBehaviour
 	public void TerminateProgramCounter()
 	{
 		// Destroy PC indicator object
-		StopCoroutine(UpdateProgramCounter());
-		Destroy(this.indicator.gameObject);
+		if (pcRoutine != null)
+		{
+			StopCoroutine(pcRoutine);
+		}
+		if (this.indicator != null)
+		{
+			Destroy(this.indicator.gameObject);
+		}
 		currentInstruction = null;
 	}
 
@@ -56,7 +65,12 @@ public class ProgramCounter : MonoBehaviour
 		while (true)
 		{
 			pc = interpreter.GetComponent<Interpreter>().GetProgramCounter();
-			if (pc >= contentPanel.transform.childCount)
+			if (contentPanel.transform.childCount < 1)
+			{
+				Debug.Log("Program counter can not be updated because the content panel has no children");
+				break;
+			}
+			else if (pc >= contentPanel.transform.childCount)
 			{
 				pc = contentPanel.transform.childCount - 1;
 			}

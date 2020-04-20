@@ -14,12 +14,21 @@ public class CardLogic : MonoBehaviour {
 
     public CardType CardType;
 
+    public float Cost;
+
+    public string Description;
+
+    public TMPro.TextMeshProUGUI CostText;
+
     public List<GameObject> BoundInstructions { get; private set; }
 
     public CardDatastructure datastructure;
 
     private TMPro.TextMeshProUGUI PanelText;
     private TMPro.TextMeshProUGUI LabelText;
+
+    private AudioCue InputAudio;
+    private AudioCue OutputAudio;
 
     public string Address { 
         get {
@@ -42,11 +51,23 @@ public class CardLogic : MonoBehaviour {
         PanelText = transform.Find("Panel").GetComponentInChildren<TMPro.TextMeshProUGUI>();
         LabelText = transform.Find("Label").GetComponentInChildren<TMPro.TextMeshProUGUI>();
         BoundInstructions = new List<GameObject>();
+        InitializeAudioCues();
+    }
+
+    private void InitializeAudioCues() {
+        AudioCue[] audioCues = GetComponents<AudioCue>();
+        foreach (AudioCue audioCue in audioCues) {
+            if (audioCue.Name == "Input Audio") {
+                InputAudio = audioCue;
+            }
+            else if (audioCue.Name == "Output Audio") {
+                OutputAudio = audioCue;
+            }
+        }
     }
 
     // Start is called before the first frame update
-    private void Start()
-    {
+    private void Start() {
         switch (CardType) {
             case CardType.REGISTER:
                 datastructure = new RegisterCard();
@@ -64,6 +85,7 @@ public class CardLogic : MonoBehaviour {
                 throw new System.Exception();
         }
 
+        CostText.text = Cost.ToString();
     }
 
     private void Update() {
@@ -96,19 +118,23 @@ public class CardLogic : MonoBehaviour {
     }
 
     public void MoveTo(int num) {
+        OutputAudio.Play();
         datastructure.Add(num);
     }
 
     public int? MoveFrom() {
+        InputAudio.Play();
         return datastructure.Remove();
     }
 
     public void CopyTo(int num) {
+        OutputAudio.Play();
         datastructure.Add(num);
     }
 
     public int? CopyFrom()
     {
+        InputAudio.Play();
         return datastructure.Peek();
     }
 

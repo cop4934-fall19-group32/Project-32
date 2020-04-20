@@ -12,15 +12,26 @@ public class StarController : MonoBehaviour
     public GameObject star2;
     public GameObject star3;
 
-    public void StarAligner(bool HasEfficiency, bool HasInstructionCount, bool HasMemory)
+    public List<StarType> StarAligner(bool HasEfficiency, bool HasInstructionCount, bool HasMemory)
     {
+        List<StarType> availableStars = new List<StarType>();
+
         // Count the number of possible stars.
         if (HasEfficiency)
+        {
+            availableStars.Add(StarType.EFFICIENCY);
             NumStars++;
+        }
         if (HasInstructionCount)
+        {
+            availableStars.Add(StarType.INSTRUCTION_COUNT);
             NumStars++;
+        }
         if (HasMemory)
+        {
+            availableStars.Add(StarType.MEMORY);
             NumStars++;
+        }
 
         // Align the empty stars accordingly.
         if (NumStars == 1)
@@ -38,18 +49,22 @@ public class StarController : MonoBehaviour
             emptyStar2.SetActive(true);
             emptyStar3.SetActive(true);
         }
+
+        return availableStars;
     }
 
-    public void StarPlacer(string puzzleName)
+    public HashSet<StarType> StarPlacer(string puzzleName)
     {
+        HashSet<StarType> earnedStars = new HashSet<StarType>();
+
         // Get a reference to the PlayerState object.
         GameObject playerStateObj = GameObject.Find("PlayerState");
         if (playerStateObj == null)
-            return;
+            return earnedStars;
         PlayerState playerState = playerStateObj.GetComponent<PlayerState>();
 
         if (!playerState.ContainsPuzzleSave(puzzleName))
-            return;
+            return earnedStars;
 
         bool efficiencyEarned = playerState.GetStarEarned(puzzleName, StarType.EFFICIENCY);
         bool instructionCountEarned = playerState.GetStarEarned(puzzleName, StarType.INSTRUCTION_COUNT);
@@ -58,22 +73,22 @@ public class StarController : MonoBehaviour
         int numEarned = 0;
         if (efficiencyEarned)
         {
-            // Update description.
+            earnedStars.Add(StarType.EFFICIENCY);
             numEarned++;
         }
         if (instructionCountEarned)
         {
-            // Update description.
+            earnedStars.Add(StarType.INSTRUCTION_COUNT);
             numEarned++;
         }
         if (memoryEarned)
         {
-            // Update description.
+            earnedStars.Add(StarType.MEMORY);
             numEarned++;
         }
 
         if (numEarned == 0)
-            return;
+            return earnedStars;
 
         if (NumStars == 1)
         {
@@ -108,5 +123,7 @@ public class StarController : MonoBehaviour
                 star3.SetActive(true);
             }
         }
+
+        return earnedStars;
     }
 }

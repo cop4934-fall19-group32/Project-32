@@ -8,6 +8,7 @@ public class LevelDataDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public PuzzleData LevelData;
     public MapNode NodeData;
     public TMPro.TextMeshProUGUI LevelDescription;
+    public TMPro.TextMeshProUGUI AwardDescription;
     public TMPro.TextMeshProUGUI StarsNeeded;
     public GameObject PopUpMenu;
     public StarController StarControl;
@@ -16,7 +17,6 @@ public class LevelDataDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExi
     void Start()
     {
         GetComponent<Canvas>().worldCamera = FindObjectOfType<Camera>();
-        LevelDescription.text = LevelData.PuzzleName + ":\n" + LevelData.Description;
 
         if (NodeData.Locked) {
             transform.Find("StarRequirement").gameObject.SetActive(true);
@@ -26,8 +26,53 @@ public class LevelDataDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExi
             transform.Find("StarRequirement").gameObject.SetActive(false);
         }
 
-        StarControl.StarAligner(LevelData.HasEfficiency, LevelData.HasInstructionCount, LevelData.HasMemory);
-        StarControl.StarPlacer(LevelData.PuzzleName);
+        List<StarType> availableStars = StarControl.StarAligner(LevelData.HasEfficiency,
+            LevelData.HasInstructionCount, LevelData.HasMemory);
+        HashSet<StarType> earnedStars = StarControl.StarPlacer(LevelData.PuzzleName);
+        string awardDescription = BuildAwardDescription(availableStars, earnedStars);
+        LevelDescription.text = "<b>" + LevelData.PuzzleName + "</b>:\n" + LevelData.Description + awardDescription;
+    }
+
+    private string BuildAwardDescription(List<StarType> availableStars, HashSet<StarType> earnedStars)
+    {
+        string awardDescription = "\n\nStars: ";
+        foreach (StarType award in availableStars)
+        {
+            //awardDescription += "(";
+
+            if (earnedStars.Contains(award))
+            {
+                awardDescription += "<s><color=#FFD700>";
+            }
+            else
+            {
+                awardDescription += "<color=#eb3131>";
+            }
+
+            if (award == StarType.EFFICIENCY)
+            {
+                awardDescription += "Efficiency";
+            }
+            else if (award == StarType.INSTRUCTION_COUNT)
+            {
+                awardDescription += "Instruction Count";
+            }
+            else if (award == StarType.MEMORY)
+            {
+                awardDescription += "Memory";
+            }
+
+            awardDescription += "</color>";
+
+            if (earnedStars.Contains(award))
+            {
+                awardDescription += "</s>";
+            }
+
+            awardDescription += ", ";
+        }
+
+        return awardDescription.Remove(awardDescription.Length - 2);
     }
 
     // Update is called once per frame

@@ -13,11 +13,27 @@ public class JumpLineDrawer : MonoBehaviour
     public RectTransform instructionTransform { get; set; }
 
     public RectTransform anchorTransform { get; set; }
-
+    public Color ActiveColor;
+    public Color InactiveColor;
+    public bool Active = true;
     private BezierCurveGenerator curveGenerator;
     private LineRenderer lineRenderer;
     public Vector3 sourceControlOffset = new Vector3(30, 0, 0);
     public Vector3 destinationControlOffset = new Vector3(50, 0, 0);
+
+    public static void ActivateAll() {
+        var allLineDrawers = FindObjectsOfType<JumpLineDrawer>();
+        foreach (var drawer in allLineDrawers) {
+            drawer.Active = true;
+        }
+    }
+
+    public static void DeactivateAll() {
+        var allLineDrawers = FindObjectsOfType<JumpLineDrawer>();
+        foreach (var drawer in allLineDrawers) {
+            drawer.Active = false;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -63,6 +79,14 @@ public class JumpLineDrawer : MonoBehaviour
             var curve = curveGenerator.GenerateCurve(BezierCurveGenerator.CurveMode.CUBIC);
             lineRenderer.positionCount = curve.Length;
             lineRenderer.SetPositions(curve);
+            if (Active) {
+                lineRenderer.startColor = ActiveColor;
+                lineRenderer.endColor = ActiveColor;
+            }
+            else {
+                lineRenderer.startColor = InactiveColor;
+                lineRenderer.endColor = InactiveColor;
+            }
             yield return new WaitForSeconds(.033f);
         }
     }
